@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>React – Componentes Nivel I</title>
+  <link rel="icon" href="https://desingdata.github.io/desingdata/img/DesingData_favicon-96x96.png" sizes="96x96" type="image/png">
+  <link rel="stylesheet" href="css/styles.css">
+  <!-- Google Fonts: Syne (display) + Source Code Pro (code) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;800&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet"/>
+
+  <!-- Highlight.js para colorear el código -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" id="hljs-theme"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+</head>
+
+<body data-theme="dark">
+
+<!-- ═══════════════ NAVBAR ═══════════════ -->
+<nav>
+  <div class="nav-logo">⚛️ <span>React</span> Nivel I</div>
+
+  <!-- Links desktop -->
+  <ul class="nav-links">
+    <li><a href="#renderizacion">Renderización</a></li>
+    <li><a href="#props">Props</a></li>
+    <li><a href="#estado">Estado</a></li>
+    <li><a href="#eventos">Eventos</a></li>
+  </ul>
+
+  <div class="nav-controls">
+    <!-- Toggle tema -->
+    <button class="theme-btn" id="themeBtn" aria-label="Cambiar tema" title="Cambiar tema">
+      <span class="theme-icon moon">🌙</span>
+      <span class="theme-icon sun">☀️</span>
+    </button>
+
+    <!-- Hamburguesa (mobile) -->
+    <button class="hamburger" id="hamburger" aria-label="Menú">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- Menú mobile -->
+<nav class="mobile-menu" id="mobileMenu">
+  <a href="#renderizacion" onclick="closeMobileMenu()">⬡ Renderización</a>
+  <a href="#props"         onclick="closeMobileMenu()">⬡ Componentes y Props</a>
+  <a href="#estado"        onclick="closeMobileMenu()">⬡ Estado y Ciclo de Vida</a>
+  <a href="#eventos"       onclick="closeMobileMenu()">⬡ Manejo de Eventos</a>
+</nav>
+
+<!-- ═══════════════ HERO ═══════════════ -->
+<section class="hero">
+  <div class="hero-badge">Componentes · Nivel I</div>
+  <h1>React desde los<br/><em>fundamentos</em></h1>
+  <p>Proyecto práctico con código comentado que cubre los cuatro pilares esenciales de React: renderización, props, estado y eventos.</p>
+
+  <div class="topic-pills">
+    <a href="#renderizacion">🖼 Renderización de elementos</a>
+    <a href="#props">🧩 Componentes y propiedades</a>
+    <a href="#estado">🔄 Estado y ciclo de vida</a>
+    <a href="#eventos">🖱 Manejo de eventos</a>
+  </div>
+</section>
+
+<!-- ═══════════════ MAIN ═══════════════ -->
+<main>
+
+  <!-- ─── 1. RENDERIZACIÓN ─── -->
+  <section id="renderizacion">
+    <div class="section-header">
+      <div class="section-num">01</div>
+      <div class="section-meta">
+        <h2>Renderización de elementos</h2>
+        <p>React convierte elementos JSX en nodos del DOM real. Cada vez que el estado o las props cambian, React compara el Virtual DOM con el DOM actual y actualiza solo lo necesario (reconciliación).</p>
+      </div>
+    </div>
+
+    <div class="topic-grid">
+      <!-- Código -->
+      <div class="card">
+        <div class="card-head">
+          <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+          <span>App.jsx</span>
+        </div>
+        <pre><code class="language-jsx">
+// RENDERIZACIÓN DE ELEMENTOS
+// React transforma JSX en llamadas a React.createElement().
+// El resultado es un objeto (Virtual DOM) que React compara
+// con el DOM real para aplicar solo los cambios necesarios.
+
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+
+// Elemento JSX simple
+const elemento = (
+  &lt;ul className="lista"&gt;
+    &lt;li&gt;⚡ Renderizado inicial&lt;/li&gt;
+    &lt;li&gt;🔁 Re-render por cambio de estado&lt;/li&gt;
+    &lt;li&gt;🎯 Solo actualiza lo que cambió&lt;/li&gt;
+  &lt;/ul&gt;
+);
+
+// Renderización: monta el árbol en el DOM
+const root = createRoot(
+  document.getElementById('root')
+);
+root.render(elemento);
+
+// React NO vuelve a crear los nodos existentes,
+// solo parchea las diferencias (diffing algorithm).
+        </code></pre>
+      </div>
+
+      <!-- Demo -->
+      <div class="demo-panel">
+        <h3>▶ Demo interactivo</h3>
+        <div class="render-list">
+          <div class="render-item"><span class="ri">⚡</span> Renderizado inicial – se monta en el DOM</div>
+          <div class="render-item"><span class="ri">🔁</span> Re-render por cambio de estado</div>
+          <div class="render-item"><span class="ri">🎯</span> Solo actualiza lo que cambió</div>
+        </div>
+        <p style="margin-top:1.25rem; font-size:.82rem; color:var(--muted); line-height:1.6;">
+          👆 Cada elemento fue generado con JSX y montado en el DOM real a través de <code style="color:var(--accent)">createRoot().render()</code>. React comparó el Virtual DOM y aplicó únicamente los nodos nuevos.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── 2. COMPONENTES Y PROPS ─── -->
+  <section id="props">
+    <div class="section-header">
+      <div class="section-num">02</div>
+      <div class="section-meta">
+        <h2>Componentes y propiedades</h2>
+        <p>Un componente es una función que recibe un objeto <em>props</em> y retorna JSX. Las props son de solo lectura: los datos fluyen hacia abajo (one-way data binding).</p>
+      </div>
+    </div>
+
+    <div class="topic-grid">
+      <div class="card">
+        <div class="card-head">
+          <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+          <span>UsuarioCard.jsx</span>
+        </div>
+        <pre><code class="language-jsx">
+// COMPONENTES Y PROPIEDADES (PROPS)
+// Un componente funcional es una función de JavaScript
+// que recibe "props" y retorna JSX.
+// Las props son de SOLO LECTURA: no se deben mutar.
+
+// Componente reutilizable: recibe datos por props
+function UsuarioCard({ nombre, rol, emoji, color }) {
+  return (
+    // El estilo inline usa la prop "color"
+    &lt;div style={{ borderColor: color }}&gt;
+      &lt;span className="avatar"&gt;{emoji}&lt;/span&gt;
+      &lt;div&gt;
+        &lt;strong&gt;{nombre}&lt;/strong&gt;   {/* prop nombre */}
+        &lt;span&gt;{rol}&lt;/span&gt;          {/* prop rol    */}
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}
+
+// Uso: se pasan props como atributos HTML
+function App() {
+  return (
+    &lt;&gt;
+      &lt;UsuarioCard
+        nombre="Ana García"
+        rol="Frontend Dev"
+        emoji="👩‍💻"
+        color="#5eead4"
+      /&gt;
+      &lt;UsuarioCard
+        nombre="Luis Torres"
+        rol="Backend Dev"
+        emoji="🧑‍💻"
+        color="#fb923c"
+      /&gt;
+    &lt;/&gt;
+  );
+}
+        </code></pre>
+      </div>
+
+      <div class="demo-panel">
+        <h3>▶ Demo – Componente UsuarioCard</h3>
+        <div class="prop-card-wrap">
+          <div class="prop-card" style="border-color:#5eead4">
+            <div class="prop-avatar" style="background:rgba(94,234,212,.15)">👩‍💻</div>
+            <div class="prop-info">
+              <strong>Ana García</strong>
+              <span>Frontend Developer</span>
+            </div>
+            <span class="prop-badge" style="background:rgba(94,234,212,.15);color:#5eead4">prop: teal</span>
+          </div>
+          <div class="prop-card" style="border-color:#fb923c">
+            <div class="prop-avatar" style="background:rgba(251,146,60,.15)">🧑‍💻</div>
+            <div class="prop-info">
+              <strong>Luis Torres</strong>
+              <span>Backend Developer</span>
+            </div>
+            <span class="prop-badge" style="background:rgba(251,146,60,.15);color:#fb923c">prop: orange</span>
+          </div>
+          <div class="prop-card" style="border-color:#a78bfa">
+            <div class="prop-avatar" style="background:rgba(167,139,250,.15)">🧑‍🎨</div>
+            <div class="prop-info">
+              <strong>María López</strong>
+              <span>UI / UX Designer</span>
+            </div>
+            <span class="prop-badge" style="background:rgba(167,139,250,.15);color:#a78bfa">prop: purple</span>
+          </div>
+        </div>
+        <p style="margin-top:1rem; font-size:.8rem; color:var(--muted)">Mismo componente, distintas props ✦ one-way data flow</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── 3. ESTADO Y CICLO DE VIDA ─── -->
+  <section id="estado">
+    <div class="section-header">
+      <div class="section-num">03</div>
+      <div class="section-meta">
+        <h2>Estado y ciclo de vida</h2>
+        <p><code style="color:var(--accent)">useState</code> añade memoria interna al componente. <code style="color:var(--accent)">useEffect</code> sincroniza efectos secundarios y representa el ciclo de vida: montar, actualizar y desmontar.</p>
+      </div>
+    </div>
+
+    <div class="topic-grid">
+      <div class="card">
+        <div class="card-head">
+          <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+          <span>Contador.jsx</span>
+        </div>
+        <pre><code class="language-jsx">
+// ESTADO Y CICLO DE VIDA
+// useState: añade una variable reactiva al componente.
+//   - [valor, setter] = useState(valorInicial)
+//   - Al llamar al setter React programa un re-render.
+//
+// useEffect: corre código como efecto secundario.
+//   - [] (vacío) → solo al montar  (componentDidMount)
+//   - [dep]      → al montar + cuando dep cambia (didUpdate)
+//   - return fn  → al desmontar   (componentWillUnmount)
+
+import { useState, useEffect } from 'react';
+
+function Contador() {
+  // Estado: "count" empieza en 0
+  const [count, setCount] = useState(0);
+  const [log,   setLog]   = useState([]);
+
+  // Ciclo de vida: se ejecuta al montar
+  useEffect(() => {
+    agregarLog('🟢 Componente montado (mount)');
+
+    // Cleanup: se ejecuta al desmontar
+    return () => agregarLog('🔴 Desmontado (unmount)');
+  }, []); // [] = solo al montar
+
+  // Se ejecuta cada vez que "count" cambia
+  useEffect(() => {
+    if (count > 0)
+      agregarLog(`🔄 count actualizado → ${count}`);
+  }, [count]); // depende de count
+
+  const agregarLog = (msg) =>
+    setLog(prev => [msg, ...prev].slice(0, 6));
+
+  return (
+    &lt;div&gt;
+      &lt;h2&gt;{count}&lt;/h2&gt;
+      &lt;button onClick={() => setCount(c => c + 1)}&gt;+1&lt;/button&gt;
+      &lt;button onClick={() => setCount(c => c - 1)}&gt;−1&lt;/button&gt;
+      &lt;button onClick={() => setCount(0)}&gt;Reset&lt;/button&gt;
+      &lt;ul&gt;{log.map((l,i) => &lt;li key={i}&gt;{l}&lt;/li&gt;)}&lt;/ul&gt;
+    &lt;/div&gt;
+  );
+}
+        </code></pre>
+      </div>
+
+      <div class="demo-panel">
+        <h3>▶ Demo – useState + useEffect</h3>
+        <div class="estado-demo">
+          <div class="estado-counter">
+            <div class="contador-num" id="contNum">0</div>
+            <div style="font-size:.8rem;color:var(--muted);margin-top:.4rem">estado actual de <code style="color:var(--accent)">count</code></div>
+            <div class="counter-btns">
+              <button class="btn-demo" onclick="cambiarContador(1)">+1</button>
+              <button class="btn-demo" onclick="cambiarContador(-1)">−1</button>
+              <button class="btn-demo" onclick="resetContador()">Reset</button>
+            </div>
+          </div>
+          <div style="font-size:.75rem;color:var(--muted);font-weight:700;letter-spacing:.08em;text-transform:uppercase;">Ciclo de vida</div>
+          <div class="ciclo-log" id="cicloLog">
+            <div class="log-entry new">🟢 Componente montado (mount)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── 4. MANEJO DE EVENTOS ─── -->
+  <section id="eventos">
+    <div class="section-header">
+      <div class="section-num">04</div>
+      <div class="section-meta">
+        <h2>Manejo de eventos</h2>
+        <p>React usa eventos sintéticos (<em>SyntheticEvent</em>) que envuelven los eventos nativos del navegador para garantizar compatibilidad cruzada. Los manejadores se pasan como props en camelCase.</p>
+      </div>
+    </div>
+
+    <div class="topic-grid">
+      <div class="card">
+        <div class="card-head">
+          <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+          <span>Formulario.jsx</span>
+        </div>
+        <pre><code class="language-jsx">
+// MANEJO DE EVENTOS
+// React usa SyntheticEvent: una capa de abstracción sobre
+// los eventos nativos del navegador para garantizar
+// comportamiento consistente en todos los navegadores.
+//
+// Reglas clave:
+//  • Los manejadores van en camelCase: onClick, onChange
+//  • Se pasan como funciones, NO como strings
+//  • e.preventDefault() previene el comportamiento nativo
+//  • e.stopPropagation() detiene la propagación (bubbling)
+
+import { useState } from 'react';
+
+function Formulario() {
+  const [texto, setTexto] = useState('');
+
+  // onChange: se dispara en cada pulsación de tecla
+  const handleChange = (e) => {
+    setTexto(e.target.value); // e.target.value = valor actual
+  };
+
+  // onClick: captura el clic en el botón
+  const handleClick = (e) => {
+    // e.currentTarget = el elemento que tiene el listener
+    console.log('Clic en:', e.currentTarget.textContent);
+  };
+
+  // onSubmit: previene el reload por defecto del form
+  const handleSubmit = (e) => {
+    e.preventDefault(); // evita recarga de página
+    alert(`Enviado: "${texto}"`);
+  };
+
+  return (
+    &lt;form onSubmit={handleSubmit}&gt;
+      &lt;input
+        value={texto}
+        onChange={handleChange}  // evento onChange
+        placeholder="Escribe algo..."
+      /&gt;
+      &lt;p&gt;Vista previa: {texto}&lt;/p&gt;
+      &lt;button
+        type="button"
+        onClick={handleClick}    // evento onClick
+      &gt;
+        Clic aquí
+      &lt;/button&gt;
+    &lt;/form&gt;
+  );
+}
+        </code></pre>
+      </div>
+
+      <div class="demo-panel">
+        <h3>▶ Demo – SyntheticEvents</h3>
+        <div class="events-demo">
+          <label style="font-size:.8rem;color:var(--muted);font-weight:600;">onChange</label>
+          <input
+            class="event-input"
+            id="eventInput"
+            placeholder="Escribe algo aquí..."
+            oninput="handleEvChange(event)"
+          />
+          <div class="event-preview" id="eventPreview">
+            Vista previa: <strong id="previewText">—</strong>
+          </div>
+
+          <label style="font-size:.8rem;color:var(--muted);font-weight:600;">onClick · onMouseEnter · onKeyDown</label>
+          <div class="event-btns">
+            <button class="btn-demo" onclick="logEvento('onClick',this)">onClick</button>
+            <button class="btn-demo" onmouseenter="logEvento('onMouseEnter',this)">onMouseEnter</button>
+            <button class="btn-demo" onkeydown="logEvento('onKeyDown',this)">onKeyDown (focus+tecla)</button>
+          </div>
+
+          <div class="event-history" id="eventHistory">
+            <div class="ev-line">— historial de eventos —</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  · <a style="text-decoration: none;" href="https://desingdata.github.io/desingdata/" target="_blank"><strong>Desing Data</strong> </a> 2026 |
+  · By <a style="text-decoration: none;" href="https://miguelmauricioriveralopez18686.github.io/mrlPortafolio/" target="_blank"><strong>Miguel Mauricio Rivera López</strong></a>
+</footer>
+
+<!-- ═══════════════ SCRIPTS ═══════════════ -->
+<script src="js/script.js"></script>
+
+</body>
+</html>
