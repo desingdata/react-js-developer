@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>React JS Developer</title>
+    <link rel="icon" href="https://desingdata.github.io/desingdata/img/DesingData_favicon-96x96.png" sizes="96x96" type="image/png">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="root">
+        <nav>
+            <div class="nav-logo">
+                ⚛ React<span>Developer</span>
+            </div>
+            <div class="nav-links">
+                <a class="active" onclick="scrollTo(0,0)">Inicio</a>
+                <a onclick="jumpTo('intro')">Intro</a>
+                <a onclick="jumpTo('comp1')">Componentes</a>
+                <a onclick="jumpTo('routing')">Routing</a>
+                <a onclick="jumpTo('api')">API REST</a>
+                <a onclick="jumpTo('redux')">Redux</a>
+            </div>
+            <div class="nav-right">
+                <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙 Oscuro</button>
+                <button class="hamburger" id="hamburger" onclick="toggleMenu()">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </nav>
+    
+        <div class="mobile-menu" id="mobile-menu">
+            <a onclick="jumpTo('intro'); closeMenu()">📦 Introducción</a>
+            <a onclick="jumpTo('comp1'); closeMenu()">🧩 Componentes I</a>
+            <a onclick="jumpTo('comp2'); closeMenu()">🔄 Componentes II</a>
+            <a onclick="jumpTo('routing'); closeMenu()">🗺 Routing</a>
+            <a onclick="jumpTo('hooks'); closeMenu()">🪝 Hooks & Patrones</a>
+            <a onclick="jumpTo('api'); closeMenu()">🌐 API REST</a>
+            <a onclick="jumpTo('redux'); closeMenu()">🏪 Redux</a>
+            <a onclick="jumpTo('middleware'); closeMenu()">⚙ Middlewares</a>
+        </div>
+    
+        <div class="hero">
+            <div class="hero-badge">⚛ PROYECTO PRÁCTICO</div>
+            <h1>React<em>.js</em> Developer</h1>
+            <p>Ruta de aprendizaje completa con 8 módulos. Marca cada tema al completarlo y sigue tu progreso.</p>
+            <div class="progress-bar-wrap">
+                <div class="progress-bar-fill" id="progress-fill"></div>
+            </div>
+            <div class="progress-label" id="progress-label">0 de 32 temas completados</div>
+        </div>
+    
+        <div class="grid" id="modules-grid"></div>
+    </div>
+    <footer>
+        <span class="footer-tag">
+            <a style="text-decoration: none;" href="https://desingdata.github.io/desingdata/" target="_blank">Desing
+                Data</a> 2026
+        </span>
+        <span class="footer-tag">
+            ·By <a style="text-decoration: none;" href="https://miguelmauricioriveralopez18686.github.io/mrlPortafolio/"
+                target="_blank">
+                Miguel Mauricio Rivera López</a>.
+        </span>
+    </footer>
+    <script src="js/script.js"></script>
+</body>
+</html>
