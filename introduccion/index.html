@@ -1,0 +1,351 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Introducción a React JS</title>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link rel="icon" href="https://desingdata.github.io/desingdata/img/DesingData_favicon-96x96.png" sizes="96x96" type="image/png">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <div class="nav-logo">
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="50" cy="50" r="12" fill="currentColor"/>
+      <ellipse cx="50" cy="50" rx="46" ry="18" fill="none" stroke="currentColor" stroke-width="5"/>
+      <ellipse cx="50" cy="50" rx="46" ry="18" fill="none" stroke="currentColor" stroke-width="5" transform="rotate(60 50 50)"/>
+      <ellipse cx="50" cy="50" rx="46" ry="18" fill="none" stroke="currentColor" stroke-width="5" transform="rotate(120 50 50)"/>
+    </svg>
+    React Docs
+  </div>
+  <ul class="nav-links">
+    <li><a href="#instalacion">Instalación</a></li>
+    <li><a href="#proyecto">Proyecto</a></li>
+    <li><a href="#componentes">Componentes</a></li>
+    <li><a href="#pensar">Pensar en React</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="theme-btn" id="themeBtn" title="Cambiar tema">🌙</button>
+    <button class="hamburger" id="hamburger" aria-label="Menú">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- MENÚ MÓVIL -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#instalacion" onclick="closeMenu()">⚙️ Instalación y configuración</a>
+  <a href="#proyecto" onclick="closeMenu()">📁 Creación de proyecto</a>
+  <a href="#componentes" onclick="closeMenu()">🧩 Componentes</a>
+  <a href="#pensar" onclick="closeMenu()">🧠 Pensar en React</a>
+</div>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-title">Contenido</div>
+    <a href="#instalacion" class="active">⚙️ Instalación</a>
+    <a href="#proyecto">📁 Crear proyecto</a>
+    <a href="#componentes">🧩 Componentes</a>
+    <a href="#props">📦 Props</a>
+    <a href="#state">⚡ State</a>
+    <a href="#pensar">🧠 Pensar en React</a>
+  </aside>
+
+  <main class="main">
+
+    <!-- SECCIÓN 1: INSTALACIÓN -->
+    <section class="section" id="instalacion">
+      <div class="section-badge">01 · Fundamentos</div>
+      <h2>Instalación y configuración</h2>
+      <p>React es una librería de JavaScript para construir interfaces de usuario. Antes de empezar, necesitas tener <strong>Node.js</strong> instalado (versión 18 o superior). Node incluye <code>npm</code>, el gestor de paquetes que usaremos.</p>
+
+      <div class="cards">
+        <div class="card hl">
+          <div class="card-icon">🟢</div>
+          <h4>Node.js</h4>
+          <p>Entorno de ejecución de JS fuera del navegador. Requerido para usar npm.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">📦</div>
+          <h4>npm / yarn</h4>
+          <p>Gestores de paquetes para instalar dependencias del proyecto.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">⚡</div>
+          <h4>Vite</h4>
+          <p>Bundler moderno y rápido, alternativa recomendada a Create React App.</p>
+        </div>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <span class="code-lang">bash — terminal</span>
+        </div>
+        <pre><span class="cm"># Verificar que Node.js está instalado correctamente</span>
+<span class="fn">node</span> <span class="st">--version</span>    <span class="cm"># Debe mostrar v18.x.x o superior</span>
+<span class="fn">npm</span>  <span class="st">--version</span>    <span class="cm"># Viene incluido con Node.js</span>
+
+<span class="cm"># Instalar React Developer Tools (extensión para Chrome/Firefox)</span>
+<span class="cm"># Buscar "React DevTools" en la tienda de extensiones</span></pre>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 2: CREAR PROYECTO -->
+    <section class="section" id="proyecto">
+      <div class="section-badge">02 · Estructura</div>
+      <h2>Creación de proyecto</h2>
+      <p>Usamos <strong>Vite</strong> para crear la estructura inicial del proyecto. Vite genera automáticamente todos los archivos de configuración, carpetas y dependencias necesarias para empezar a trabajar con React.</p>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body"><h4>Crear el proyecto con Vite</h4><p>Ejecutar el comando en la carpeta donde quieres el proyecto.</p></div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body"><h4>Seleccionar React + JavaScript</h4><p>El asistente interactivo pregunta el framework y variante.</p></div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body"><h4>Instalar dependencias</h4><p>npm install descarga todos los paquetes del package.json.</p></div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-body"><h4>Iniciar servidor de desarrollo</h4><p>npm run dev abre el proyecto en http://localhost:5173</p></div>
+        </div>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <span class="code-lang">bash — crear proyecto</span>
+        </div>
+        <pre><span class="cm"># Crear un nuevo proyecto React con Vite (scaffolding automático)</span>
+<span class="fn">npm</span> create vite@latest <span class="st">mi-app-react</span> <span class="kw">--</span> <span class="kw">--template</span> react
+
+<span class="cm"># Entrar a la carpeta del proyecto recién creado</span>
+<span class="fn">cd</span> mi-app-react
+
+<span class="cm"># Instalar todas las dependencias listadas en package.json</span>
+<span class="fn">npm</span> install
+
+<span class="cm"># Iniciar el servidor de desarrollo con Hot Module Replacement (HMR)</span>
+<span class="fn">npm</span> run dev</pre>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <span class="code-lang">text — estructura de carpetas generada</span>
+        </div>
+        <pre><span class="ac">mi-app-react/</span>
+<span class="cm">│</span>
+<span class="gr">├── public/</span>           <span class="cm"># Archivos estáticos (favicon, imágenes públicas)</span>
+<span class="gr">├── src/</span>              <span class="cm"># Código fuente principal del proyecto</span>
+<span class="cm">│   ├── assets/</span>       <span class="cm"># Imágenes, fuentes, recursos importados por JS</span>
+<span class="tg">│   ├── App.jsx</span>       <span class="cm"># Componente raíz: punto de entrada de la UI</span>
+<span class="tg">│   ├── App.css</span>       <span class="cm"># Estilos globales del componente App</span>
+<span class="tg">│   └── main.jsx</span>      <span class="cm"># Monta el árbol React en el DOM (ReactDOM.render)</span>
+<span class="cm">│</span>
+<span class="pk">├── index.html</span>        <span class="cm"># HTML base: contiene &lt;div id="root"&gt; donde React vive</span>
+<span class="pk">├── vite.config.js</span>    <span class="cm"># Configuración de Vite (plugins, alias, puerto)</span>
+<span class="pk">└── package.json</span>      <span class="cm"># Metadatos, scripts y lista de dependencias</span></pre>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 3: COMPONENTES -->
+    <section class="section" id="componentes">
+      <div class="section-badge">03 · Componentes</div>
+      <h2>Introducción a componentes</h2>
+      <p>Los <strong>componentes</strong> son el núcleo de React. Son funciones de JavaScript que devuelven <strong>JSX</strong> (HTML con superpoderes). Cada componente es una pieza reutilizable e independiente de la interfaz.</p>
+
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <span class="code-lang">jsx — componente funcional básico</span>
+        </div>
+        <pre><span class="cm">// Un componente es simplemente una función que retorna JSX.
+// JSX = JavaScript XML: mezcla HTML con expresiones JS.</span>
+
+<span class="kw">function</span> <span class="fn">TarjetaUsuario</span>(<span class="ac">{ nombre, rol, avatar }</span>) {
+  <span class="cm">// Las props son los parámetros del componente (datos de entrada).
+  // Se pasan como atributos HTML desde el componente padre.</span>
+
+  <span class="kw">return</span> (
+    <span class="cm">// El JSX debe tener un solo elemento raíz (o usar Fragment &lt;&gt;)</span>
+    <span class="tg">&lt;div</span> <span class="fn">className</span>=<span class="st">"tarjeta"</span><span class="tg">&gt;</span>
+      <span class="tg">&lt;img</span> <span class="fn">src</span>=<span class="ac">{avatar}</span> <span class="fn">alt</span>=<span class="ac">{nombre}</span> <span class="tg">/&gt;</span>
+
+      <span class="cm">{"/* Las llaves {} ejecutan expresiones JS dentro del JSX */"}</span>
+      <span class="tg">&lt;h2&gt;</span><span class="ac">{nombre}</span><span class="tg">&lt;/h2&gt;</span>
+      <span class="tg">&lt;p&gt;</span><span class="ac">{rol}</span><span class="tg">&lt;/p&gt;</span>
+    <span class="tg">&lt;/div&gt;</span>
+  );
+}
+
+<span class="cm">// Usar el componente (instanciar) pasándole sus props:</span>
+<span class="tg">&lt;TarjetaUsuario</span>
+  <span class="fn">nombre</span>=<span class="st">"Ana García"</span>
+  <span class="fn">rol</span>=<span class="st">"Frontend Dev"</span>
+  <span class="fn">avatar</span>=<span class="st">"/foto.jpg"</span>
+<span class="tg">/&gt;</span></pre>
+      </div>
+
+      <div class="code-wrap" id="state">
+        <div class="code-header">
+          <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <span class="code-lang">jsx — useState: estado del componente</span>
+        </div>
+        <pre><span class="cm">// useState es un Hook: función especial de React que permite
+// guardar y actualizar datos dentro de un componente.</span>
+
+<span class="kw">import</span> { <span class="ac">useState</span> } <span class="kw">from</span> <span class="st">'react'</span>;
+
+<span class="kw">function</span> <span class="fn">Contador</span>() {
+  <span class="cm">// useState(0) → valor inicial
+  // count → valor actual del estado
+  // setCount → función para actualizar el estado (re-renderiza)</span>
+  <span class="kw">const</span> [<span class="ac">count</span>, <span class="fn">setCount</span>] = <span class="fn">useState</span>(<span class="nu">0</span>);
+
+  <span class="kw">return</span> (
+    <span class="tg">&lt;div&gt;</span>
+      <span class="cm">{"/* Mostrar el valor actual del estado */"}</span>
+      <span class="tg">&lt;p&gt;</span>Clics: <span class="ac">{count}</span><span class="tg">&lt;/p&gt;</span>
+
+      <span class="cm">{"/* onClick es el manejador de eventos (event handler) */"}</span>
+      <span class="tg">&lt;button</span> <span class="fn">onClick</span>=<span class="ac">{() =&gt; setCount(count + 1)}</span><span class="tg">&gt;</span>
+        Incrementar
+      <span class="tg">&lt;/button&gt;</span>
+    <span class="tg">&lt;/div&gt;</span>
+  );
+}
+
+<span class="cm">// Regla fundamental: NUNCA mutar el estado directamente.
+// ✘ count++ → incorrecto (no activa re-render)
+// ✔ setCount(count + 1) → correcto (React actualiza la UI)</span></pre>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <span class="code-lang">jsx — listas y renderizado condicional</span>
+        </div>
+        <pre><span class="kw">function</span> <span class="fn">ListaTareas</span>(<span class="ac">{ tareas }</span>) {
+  <span class="kw">return</span> (
+    <span class="tg">&lt;ul&gt;</span>
+      <span class="ac">{tareas</span>.<span class="fn">map</span>(<span class="ac">(tarea) =&gt;</span> (
+        <span class="cm">{"/* key: identificador único para optimización del Virtual DOM */"}</span>
+        <span class="tg">&lt;li</span> <span class="fn">key</span>=<span class="ac">{tarea.id}</span><span class="tg">&gt;</span>
+
+          <span class="cm">{"/* Renderizado condicional: muestra icono solo si está hecha */"}</span>
+          <span class="ac">{tarea.hecha</span> <span class="kw">&&</span> <span class="tg">&lt;span&gt;</span>✅<span class="tg">&lt;/span&gt;</span><span class="ac">}</span>
+
+          <span class="ac">{tarea.texto}</span>
+        <span class="tg">&lt;/li&gt;</span>
+      ))<span class="ac">}</span>
+    <span class="tg">&lt;/ul&gt;</span>
+  );
+}
+
+<span class="cm">// Array de datos de ejemplo para la lista:</span>
+<span class="kw">const</span> <span class="ac">misTareas</span> = [
+  { <span class="fn">id</span>: <span class="nu">1</span>, <span class="fn">texto</span>: <span class="st">'Aprender React'</span>,  <span class="fn">hecha</span>: <span class="kw">true</span>  },
+  { <span class="fn">id</span>: <span class="nu">2</span>, <span class="fn">texto</span>: <span class="st">'Crear componentes'</span>, <span class="fn">hecha</span>: <span class="kw">false</span> },
+  { <span class="fn">id</span>: <span class="nu">3</span>, <span class="fn">texto</span>: <span class="st">'Hacer deploy'</span>,      <span class="fn">hecha</span>: <span class="kw">false</span> },
+];</pre>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 4: PENSAR EN REACT -->
+    <section class="section" id="pensar">
+      <div class="section-badge">04 · Mentalidad</div>
+      <h2>Pensar en React</h2>
+      <p>La guía oficial de React propone un proceso de 5 pasos para diseñar cualquier interfaz. El objetivo es descomponer el problema en piezas pequeñas y manejar los datos correctamente.</p>
+
+      <div class="think-diagram">
+        <div class="think-box s1">
+          <div class="think-step">Paso 1</div>
+          <h4>Dividir en componentes</h4>
+          <p>Analiza el diseño/mockup y dibuja cajas alrededor de cada parte lógica de la UI.</p>
+        </div>
+        <div class="think-box s2">
+          <div class="think-step">Paso 2</div>
+          <h4>Construir la versión estática</h4>
+          <p>Implementa la UI con props únicamente. Sin estado todavía. Solo renderizado.</p>
+        </div>
+        <div class="think-box s3">
+          <div class="think-step">Paso 3</div>
+          <h4>Identificar el estado mínimo</h4>
+          <p>¿Qué datos cambian en el tiempo? Ese es tu estado. El resto son props o derivados.</p>
+        </div>
+        <div class="think-box s4">
+          <div class="think-step">Paso 4</div>
+          <h4>¿Dónde vive el estado?</h4>
+          <p>Ubica el estado en el ancestro común más cercano de todos los que lo necesitan.</p>
+        </div>
+        <div class="think-box s5">
+          <div class="think-step">Paso 5</div>
+          <h4>Agregar flujo de datos inverso</h4>
+          <p>Los hijos notifican cambios al padre pasando callbacks como props. Los datos fluyen hacia abajo (props), los eventos hacia arriba (callbacks).</p>
+        </div>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <span class="code-lang">jsx — flujo de datos: props ↓ · eventos ↑</span>
+        </div>
+        <pre><span class="cm">// PADRE: dueño del estado, lo pasa hacia abajo con props.</span>
+<span class="kw">function</span> <span class="fn">App</span>() {
+  <span class="kw">const</span> [<span class="ac">busqueda</span>, <span class="fn">setBusqueda</span>] = <span class="fn">useState</span>(<span class="st">''</span>);
+
+  <span class="cm">// setBusqueda se pasa al hijo como prop (callback)</span>
+  <span class="kw">return</span> (
+    <span class="tg">&lt;&gt;</span>
+      <span class="tg">&lt;BarraBusqueda</span> <span class="fn">onBuscar</span>=<span class="ac">{setBusqueda}</span> <span class="tg">/&gt;</span>
+      <span class="tg">&lt;TablaProductos</span> <span class="fn">filtro</span>=<span class="ac">{busqueda}</span> <span class="tg">/&gt;</span>
+    <span class="tg">&lt;/&gt;</span>
+  );
+}
+
+<span class="cm">// HIJO A: recibe callback, notifica al padre los cambios de input.</span>
+<span class="kw">function</span> <span class="fn">BarraBusqueda</span>(<span class="ac">{ onBuscar }</span>) {
+  <span class="kw">return</span> (
+    <span class="tg">&lt;input</span>
+      <span class="fn">placeholder</span>=<span class="st">"Buscar..."</span>
+      <span class="cm">{"/* onChange: evento del DOM → callback del padre */"}</span>
+      <span class="fn">onChange</span>=<span class="ac">{(e) =&gt; onBuscar(e.target.value)}</span>
+    <span class="tg">/&gt;</span>
+  );
+}
+
+<span class="cm">// HIJO B: recibe el filtro como prop y filtra los productos.</span>
+<span class="kw">function</span> <span class="fn">TablaProductos</span>(<span class="ac">{ filtro }</span>) {
+  <span class="kw">const</span> <span class="ac">resultado</span> = productos.<span class="fn">filter</span>(<span class="ac">p =&gt;</span>
+    p.nombre.<span class="fn">toLowerCase</span>().<span class="fn">includes</span>(filtro.<span class="fn">toLowerCase</span>())
+  );
+  <span class="kw">return</span> <span class="tg">&lt;ul&gt;</span><span class="ac">{resultado</span>.<span class="fn">map</span>(<span class="ac">p =&gt; &lt;</span><span class="tg">li</span> <span class="fn">key</span>=<span class="ac">{p.id}&gt;{p.nombre}&lt;/</span><span class="tg">li</span><span class="ac">&gt;)</span><span class="ac">}</span><span class="tg">&lt;/ul&gt;</span>;
+}</pre>
+      </div>
+    </section>
+
+  </main>
+</div>
+<footer>
+    <span class="footer-tag">
+        <a style="text-decoration: none;" href="https://desingdata.github.io/desingdata/" target="_blank">Desing Data</a> 2026
+    </span> 
+    <span class="footer-tag">
+         ·By <a style="text-decoration: none;" href="https://miguelmauricioriveralopez18686.github.io/mrlPortafolio/" target="_blank">
+      Miguel Mauricio Rivera López</a>.
+    </span>
+  </footer>
+<script src="js/script.js"></script>
+</body>
+</html>
