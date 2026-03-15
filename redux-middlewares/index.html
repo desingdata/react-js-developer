@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Redux Middlewares - React JS Developer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Syne:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="icon" href="https://desingdata.github.io/desingdata/img/DesingData_favicon-96x96.png" sizes="96x96"
+    type="image/png">
+
+  <style>
+    /* ─── CSS Variables: Light & Dark themes ─── */
+    :root {
+      --bg:        #f5f4ef;
+      --bg2:       #ebe9e2;
+      --surface:   #ffffff;
+      --border:    #d4d0c8;
+      --text:      #1a1917;
+      --text2:     #5a5750;
+      --text3:     #8a877e;
+      --accent:    #e04f2e;       /* Coral/Redux rojo */
+      --accent2:   #6b4fce;       /* Thunk/Saga violeta */
+      --accent3:   #1a8a6e;       /* Logger verde */
+      --accent4:   #c47c00;       /* Deploy dorado */
+      --code-bg:   #1e1d1a;
+      --code-text: #e8e4d9;
+      --tag-bg:    #fdeee9;
+      --tag-text:  #9e2e15;
+      --nav-h:     64px;
+      --radius:    10px;
+    }
+
+    /* Tema oscuro */
+    [data-theme="dark"] {
+      --bg:        #131210;
+      --bg2:       #1c1b18;
+      --surface:   #232119;
+      --border:    #38352e;
+      --text:      #ede9df;
+      --text2:     #a09b90;
+      --text3:     #625f58;
+      --accent:    #f0714d;
+      --accent2:   #9d7ef5;
+      --accent3:   #3abf96;
+      --accent4:   #e0a040;
+      --code-bg:   #0d0d0b;
+      --code-text: #e8e4d9;
+      --tag-bg:    #2a1610;
+      --tag-text:  #f0714d;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; font-size: 16px; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      transition: background .3s, color .3s;
+      line-height: 1.7;
+    }
+
+    /* ─── Navbar ─── */
+    /* El navbar tipo hamburguesa es fijo en la parte superior */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: var(--nav-h);
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.5rem;
+      z-index: 1000;
+      transition: background .3s, border-color .3s;
+    }
+
+    .nav-brand {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.15rem;
+      color: var(--accent);
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+
+    .nav-brand .redux-badge {
+      background: var(--accent);
+      color: #fff;
+      font-size: .65rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Fira Code', monospace;
+      font-weight: 500;
+    }
+
+    /* Links del navbar (desktop) */
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: .875rem;
+      color: var(--text2);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color .2s;
+      padding: 4px 2px;
+      border-bottom: 2px solid transparent;
+    }
+
+    .nav-links a:hover {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    /* Botón cambio de tema */
+    .theme-toggle {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 5px 12px;
+      cursor: pointer;
+      font-size: .8rem;
+      color: var(--text2);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background .2s, color .2s;
+      font-family: 'Inter', sans-serif;
+    }
+    .theme-toggle:hover { background: var(--border); color: var(--text); }
+    .theme-icon { font-size: 1rem; }
+
+    /* Botón hamburguesa (solo mobile) */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 4px;
+    }
+    .hamburger span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: var(--text);
+      border-radius: 2px;
+      transition: transform .3s, opacity .3s;
+    }
+    /* Animación hamburguesa → X */
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* Menú móvil desplegable */
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      top: var(--nav-h);
+      left: 0; right: 0;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      flex-direction: column;
+      padding: 1rem 1.5rem;
+      gap: .5rem;
+      z-index: 999;
+      transition: background .3s;
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a {
+      color: var(--text2);
+      text-decoration: none;
+      font-size: 1rem;
+      padding: .5rem 0;
+      border-bottom: 1px solid var(--border);
+      font-weight: 500;
+      transition: color .2s;
+    }
+    .mobile-menu a:last-child { border-bottom: none; }
+    .mobile-menu a:hover { color: var(--accent); }
+
+    /* ─── Layout Principal ─── */
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: calc(var(--nav-h) + 2.5rem) 1.5rem 4rem;
+    }
+
+    /* ─── Hero ─── */
+    .hero {
+      text-align: center;
+      margin-bottom: 3.5rem;
+    }
+    .hero-eyebrow {
+      font-family: 'Fira Code', monospace;
+      font-size: .8rem;
+      color: var(--accent);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: .75rem;
+    }
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 800;
+      line-height: 1.1;
+      color: var(--text);
+      margin-bottom: 1rem;
+    }
+    .hero h1 span { color: var(--accent); }
+    .hero p {
+      font-size: 1.05rem;
+      color: var(--text2);
+      max-width: 580px;
+      margin: 0 auto 1.5rem;
+    }
+
+    /* Tags del hero */
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+      justify-content: center;
+    }
+    .tag {
+      background: var(--tag-bg);
+      color: var(--tag-text);
+      font-family: 'Fira Code', monospace;
+      font-size: .75rem;
+      padding: 4px 10px;
+      border-radius: 5px;
+      font-weight: 500;
+    }
+    .tag.purple { background: #ede9ff; color: #4a2eb5; }
+    .tag.green  { background: #e6f7f2; color: #0d5e49; }
+    .tag.gold   { background: #fef5e4; color: #8a5800; }
+
+    [data-theme="dark"] .tag.purple { background: #1f1640; color: #a98af5; }
+    [data-theme="dark"] .tag.green  { background: #0a2420; color: #40cfa0; }
+    [data-theme="dark"] .tag.gold   { background: #221500; color: #e8a83a; }
+
+    /* ─── Sección ─── */
+    section {
+      margin-bottom: 3rem;
+      scroll-margin-top: calc(var(--nav-h) + 1rem);
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      margin-bottom: 1.25rem;
+      padding-bottom: .75rem;
+      border-bottom: 2px solid var(--border);
+    }
+    .section-num {
+      font-family: 'Fira Code', monospace;
+      font-size: .75rem;
+      color: var(--accent);
+      background: var(--tag-bg);
+      padding: 3px 8px;
+      border-radius: 5px;
+    }
+    section h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    /* ─── Tarjeta de concepto ─── */
+    .concept-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.25rem;
+      transition: background .3s, border-color .3s;
+    }
+    .concept-card h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: .5rem;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+    .concept-card h3 .dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .concept-card p {
+      font-size: .9rem;
+      color: var(--text2);
+      margin-bottom: .75rem;
+    }
+    .concept-card p:last-child { margin-bottom: 0; }
+
+    /* ─── Bloque de código ─── */
+    /*
+      Cada bloque de código incluye un comentario corto explicativo
+      al inicio, de acuerdo a los requisitos del proyecto.
+    */
+    .code-block {
+      background: var(--code-bg);
+      border-radius: var(--radius);
+      overflow-x: auto;
+      margin: 1rem 0;
+      position: relative;
+    }
+    .code-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: .6rem 1rem;
+      border-bottom: 1px solid #38352e;
+      font-family: 'Fira Code', monospace;
+      font-size: .75rem;
+    }
+    .code-lang {
+      color: var(--accent);
+      font-weight: 500;
+    }
+    .code-copy {
+      background: #38352e;
+      border: none;
+      color: #a09b90;
+      border-radius: 4px;
+      padding: 2px 8px;
+      cursor: pointer;
+      font-size: .7rem;
+      font-family: 'Fira Code', monospace;
+      transition: background .2s, color .2s;
+    }
+    .code-copy:hover { background: #4a4640; color: #ede9df; }
+    pre {
+      padding: 1.25rem 1.5rem;
+      overflow-x: auto;
+      font-family: 'Fira Code', monospace;
+      font-size: .82rem;
+      line-height: 1.7;
+      color: var(--code-text);
+    }
+
+    /* Colores de sintaxis */
+    .kw  { color: #c792ea; }   /* keyword */
+    .fn  { color: #82aaff; }   /* function */
+    .str { color: #c3e88d; }   /* string */
+    .cm  { color: #546e7a; font-style: italic; } /* comment */
+    .vr  { color: #f07178; }   /* variable */
+    .cn  { color: #ffcb6b; }   /* constant */
+    .op  { color: #89ddff; }   /* operator */
+
+    /* ─── Diagrama de flujo (visual puro CSS) ─── */
+    .flow-diagram {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0;
+      margin: 1.5rem 0;
+      padding: 1.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+    .flow-box {
+      background: var(--bg2);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: .6rem 1rem;
+      font-family: 'Fira Code', monospace;
+      font-size: .78rem;
+      color: var(--text);
+      text-align: center;
+      min-width: 100px;
+      font-weight: 500;
+      flex-shrink: 0;
+    }
+    .flow-box.accent  { border-color: var(--accent);  color: var(--accent);  background: var(--tag-bg); }
+    .flow-box.purple  { border-color: var(--accent2); color: var(--accent2); background: #ede9ff; }
+    .flow-box.green   { border-color: var(--accent3); color: var(--accent3); background: #e6f7f2; }
+
+    [data-theme="dark"] .flow-box.purple { background: #1f1640; }
+    [data-theme="dark"] .flow-box.green  { background: #0a2420; }
+
+    .flow-arrow {
+      font-size: 1.1rem;
+      color: var(--text3);
+      padding: 0 .25rem;
+      flex-shrink: 0;
+    }
+
+    /* ─── Tabla de comparación ─── */
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .875rem;
+      margin: 1rem 0;
+    }
+    .compare-table th {
+      background: var(--bg2);
+      color: var(--text2);
+      font-weight: 600;
+      text-align: left;
+      padding: .6rem .9rem;
+      font-size: .8rem;
+      border-bottom: 2px solid var(--border);
+    }
+    .compare-table td {
+      padding: .6rem .9rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
+    .compare-table tr:last-child td { border-bottom: none; }
+    .compare-table .badge {
+      font-family: 'Fira Code', monospace;
+      font-size: .72rem;
+      padding: 2px 7px;
+      border-radius: 4px;
+    }
+    .badge-r { background: var(--tag-bg);  color: var(--tag-text); }
+    .badge-p { background: #ede9ff; color: #4a2eb5; }
+    .badge-g { background: #e6f7f2; color: #0d5e49; }
+
+    [data-theme="dark"] .badge-p { background: #1f1640; color: #a98af5; }
+    [data-theme="dark"] .badge-g { background: #0a2420; color: #40cfa0; }
+
+    /* ─── Deploy steps ─── */
+    .deploy-steps {
+      display: flex;
+      flex-direction: column;
+      gap: .75rem;
+      margin: 1rem 0;
+    }
+    .deploy-step {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      transition: background .3s;
+    }
+    .step-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--accent4);
+      min-width: 28px;
+      line-height: 1;
+      padding-top: 2px;
+    }
+    .step-content h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: .95rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: .25rem;
+    }
+    .step-content p {
+      font-size: .85rem;
+      color: var(--text2);
+    }
+
+    /* ─── Callout / nota ─── */
+    .callout {
+      border-left: 3px solid var(--accent2);
+      background: var(--surface);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: .9rem 1.25rem;
+      margin: 1rem 0;
+      font-size: .875rem;
+      color: var(--text2);
+    }
+    .callout strong { color: var(--accent2); }
+
+    /* ─── Footer ─── */
+    footer {
+      text-align: center;
+      padding: 2rem;
+      font-size: .8rem;
+      color: var(--text3);
+      border-top: 1px solid var(--border);
+      font-family: 'Fira Code', monospace;
+    }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+      .flow-diagram {
+        flex-direction: column;
+        gap: .5rem;
+      }
+      .flow-arrow {
+        transform: rotate(90deg);
+      }
+      .compare-table { font-size: .78rem; }
+      .compare-table th, .compare-table td { padding: .5rem .65rem; }
+      main { padding-top: calc(var(--nav-h) + 1.5rem); }
+    }
+
+    @media (max-width: 480px) {
+      .hero h1 { font-size: 1.8rem; }
+      pre { font-size: .75rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════════════════════════════════
+       NAVBAR — Barra de navegación responsiva
+       Incluye: logo, links desktop, botón de
+       tema claro/oscuro y hamburguesa móvil.
+  ════════════════════════════════════════ -->
+  <nav>
+    <a class="nav-brand" href="#">
+      Redux
+      <span class="redux-badge">middleware</span>
+    </a>
+
+    <!-- Links visibles solo en desktop -->
+    <ul class="nav-links">
+      <li><a href="#concepto">Concepto</a></li>
+      <li><a href="#logger">Logger</a></li>
+      <li><a href="#thunk">Thunk</a></li>
+      <li><a href="#sagas">Sagas</a></li>
+      <li><a href="#deploy">Deploy</a></li>
+    </ul>
+
+    <div style="display:flex;align-items:center;gap:.75rem;">
+      <!-- Botón cambio de tema claro ↔ oscuro -->
+      <button class="theme-toggle" id="themeToggle" title="Cambiar tema">
+        <span class="theme-icon" id="themeIcon">🌙</span>
+        <span id="themeLabel">Oscuro</span>
+      </button>
+      <!-- Botón hamburguesa: solo visible en móvil -->
+      <button class="hamburger" id="hamburger" aria-label="Menú">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Menú móvil desplegable -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#concepto" onclick="closeMenu()">Concepto & Creación</a>
+    <a href="#logger"   onclick="closeMenu()">Redux-Logger</a>
+    <a href="#thunk"    onclick="closeMenu()">Redux-Thunk</a>
+    <a href="#sagas"    onclick="closeMenu()">Redux-Sagas</a>
+    <a href="#deploy"   onclick="closeMenu()">Deploy a Producción</a>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       CONTENIDO PRINCIPAL
+  ════════════════════════════════════════ -->
+  <main>
+
+    <!-- Hero -->
+    <div class="hero">
+      <p class="hero-eyebrow">// proyecto práctico</p>
+      <h1>Redux <span>Middlewares</span><br />Guía Completa</h1>
+      <p>
+        Aprende a extender el ciclo de vida de Redux con middlewares:
+        desde conceptos hasta deploy en producción.
+      </p>
+      <div class="tag-row">
+        <span class="tag">middleware</span>
+        <span class="tag purple">redux-thunk</span>
+        <span class="tag purple">redux-saga</span>
+        <span class="tag green">redux-logger</span>
+        <span class="tag gold">production</span>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════
+         SECCIÓN 1 — Concepto y Creación
+    ════════════════════════════════════ -->
+    <section id="concepto">
+      <div class="section-header">
+        <span class="section-num">01</span>
+        <h2>Middlewares: Concepto y Creación</h2>
+      </div>
+
+      <div class="concept-card">
+        <h3>
+          <span class="dot" style="background:var(--accent)"></span>
+          ¿Qué es un middleware?
+        </h3>
+        <!--
+          DEFINICIÓN: Un middleware es una función que intercepta
+          cada acción despachada ANTES de que llegue al reducer.
+          Tiene acceso al store y puede modificar, cancelar o
+          extender el comportamiento de la acción.
+        -->
+        <p>
+          Un <strong>middleware</strong> en Redux es una función que se sitúa entre el
+          <code>dispatch</code> de una acción y el <code>reducer</code>. Puede inspeccionar,
+          modificar, retardar o incluso cancelar acciones. Es la base para asincronía y logging.
+        </p>
+      </div>
+
+      <!-- Diagrama de flujo del ciclo Redux + middleware -->
+      <div class="flow-diagram">
+        <div class="flow-box accent">dispatch(action)</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box purple">Middleware 1</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box purple">Middleware 2</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box green">Reducer</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box">New State</div>
+      </div>
+
+      <div class="concept-card">
+        <h3>
+          <span class="dot" style="background:var(--accent2)"></span>
+          Firma de un middleware
+        </h3>
+        <!--
+          DEFINICIÓN: La firma currificada del middleware recibe
+          el store, luego la función next (siguiente middleware),
+          y finalmente la acción despachada.
+        -->
+        <p>Todo middleware Redux sigue la firma <code>store => next => action => ...</code>. Esta estructura currificada permite encadenar múltiples middlewares.</p>
+      </div>
+
+      <!-- Código: Creación de un middleware personalizado -->
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">JavaScript — middleware.js</span>
+          <button class="code-copy" onclick="copyCode(this)">copiar</button>
+        </div>
+        <pre><span class="cm">// ─── Middleware personalizado ─────────────────────────────
+// Un middleware sigue la firma currificada:
+//   store → next → action → resultado
+// "next" llama al siguiente middleware (o al reducer si es el último).
+// Si no llamamos next(action), la acción NO llega al reducer.</span>
+
+<span class="kw">const</span> <span class="fn">miMiddleware</span> <span class="op">=</span> <span class="vr">store</span> <span class="op">=></span> <span class="vr">next</span> <span class="op">=></span> <span class="vr">action</span> <span class="op">=></span> {
+
+  <span class="cm">// 1. Código ANTES de que la acción llegue al reducer</span>
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'Acción recibida:'</span>, <span class="vr">action</span>.<span class="vr">type</span>);
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'Estado previo:'</span>, <span class="vr">store</span>.<span class="fn">getState</span>());
+
+  <span class="cm">// 2. Pasamos la acción al siguiente middleware/reducer</span>
+  <span class="kw">const</span> <span class="vr">resultado</span> <span class="op">=</span> <span class="fn">next</span>(<span class="vr">action</span>);
+
+  <span class="cm">// 3. Código DESPUÉS de que el reducer actualizó el estado</span>
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'Estado nuevo:'</span>, <span class="vr">store</span>.<span class="fn">getState</span>());
+
+  <span class="kw">return</span> <span class="vr">resultado</span>;
+};
+
+<span class="cm">// ─── Registrar middlewares en el store ────────────────────
+// applyMiddleware compone todos los middlewares en una cadena.</span>
+<span class="kw">import</span> { <span class="fn">createStore</span>, <span class="fn">applyMiddleware</span> } <span class="kw">from</span> <span class="str">'redux'</span>;
+
+<span class="kw">const</span> <span class="vr">store</span> <span class="op">=</span> <span class="fn">createStore</span>(
+  <span class="vr">rootReducer</span>,
+  <span class="fn">applyMiddleware</span>(<span class="vr">miMiddleware</span>) <span class="cm">// se pueden encadenar: applyMiddleware(a, b, c)</span>
+);</pre>
+      </div>
+
+      <div class="callout">
+        <strong>💡 Nota:</strong> Con Redux Toolkit, usa <code>configureStore({ middleware: (getDefault) => getDefault().concat(miMiddleware) })</code> para agregar middlewares personalizados sin perder los de defecto.
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════
+         SECCIÓN 2 — Redux-Logger
+    ════════════════════════════════════ -->
+    <section id="logger">
+      <div class="section-header">
+        <span class="section-num">02</span>
+        <h2>Redux-Logger</h2>
+      </div>
+
+      <div class="concept-card">
+        <h3>
+          <span class="dot" style="background:var(--accent3)"></span>
+          ¿Qué es redux-logger?
+        </h3>
+        <!--
+          DEFINICIÓN: redux-logger es un middleware que muestra en
+          la consola del navegador cada acción despachada, el estado
+          previo y el nuevo estado, con colores y agrupación visual.
+          Solo debe usarse en desarrollo (no en producción).
+        -->
+        <p>
+          <strong>redux-logger</strong> es un middleware de depuración que imprime en la consola
+          cada acción junto con el estado anterior y el nuevo estado. Es una herramienta de
+          desarrollo — <em>nunca debe ir a producción</em>.
+        </p>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">Bash — Instalación</span>
+          <button class="code-copy" onclick="copyCode(this)">copiar</button>
+        </div>
+        <pre><span class="fn">npm</span> install redux-logger</pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">JavaScript — store.js con Logger</span>
+          <button class="code-copy" onclick="copyCode(this)">copiar</button>
+        </div>
+        <pre><span class="cm">// ─── redux-logger ─────────────────────────────────────────
+// createLogger acepta opciones para personalizar la salida:
+//   collapsed: true → muestra los logs agrupados y colapsados
+//   diff: true       → muestra solo las propiedades que cambiaron
+//   predicate        → filtra qué acciones se loguean
+// IMPORTANTE: Solo activo en NODE_ENV !== 'production'</span>
+
+<span class="kw">import</span> { <span class="fn">createStore</span>, <span class="fn">applyMiddleware</span> } <span class="kw">from</span> <span class="str">'redux'</span>;
+<span class="kw">import</span> { <span class="fn">createLogger</span> } <span class="kw">from</span> <span class="str">'redux-logger'</span>;
+
+<span class="cm">// Configuración del logger</span>
+<span class="kw">const</span> <span class="vr">logger</span> <span class="op">=</span> <span class="fn">createLogger</span>({
+  <span class="vr">collapsed</span>: <span class="kw">true</span>,    <span class="cm">// colapsa los grupos por defecto</span>
+  <span class="vr">diff</span>:       <span class="kw">true</span>,    <span class="cm">// muestra diff entre estado previo y nuevo</span>
+  <span class="vr">predicate</span>:  (<span class="vr">_</span>, <span class="vr">action</span>) <span class="op">=></span> <span class="vr">action</span>.<span class="vr">type</span> <span class="op">!==</span> <span class="str">'@@INIT'</span>,
+});
+
+<span class="cm">// Solo agregar el logger en desarrollo</span>
+<span class="kw">const</span> <span class="vr">middlewares</span> <span class="op">=</span> [];
+<span class="kw">if</span> (<span class="vr">process</span>.<span class="vr">env</span>.<span class="cn">NODE_ENV</span> <span class="op">!==</span> <span class="str">'production'</span>) {
+  <span class="vr">middlewares</span>.<span class="fn">push</span>(<span class="vr">logger</span>);
+}
+
+<span class="kw">const</span> <span class="vr">store</span> <span class="op">=</span> <span class="fn">createStore</span>(
+  <span class="vr">rootReducer</span>,
+  <span class="fn">applyMiddleware</span>(...<span class="vr">middlewares</span>)
+);</pre>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════
+         SECCIÓN 3 — Redux-Thunk
+    ════════════════════════════════════ -->
+    <section id="thunk">
+      <div class="section-header">
+        <span class="section-num">03</span>
+        <h2>Redux-Thunk</h2>
+      </div>
+
+      <div class="concept-card">
+        <h3>
+          <span class="dot" style="background:var(--accent2)"></span>
+          ¿Qué es un thunk?
+        </h3>
+        <!--
+          DEFINICIÓN: Un thunk es una función que retorna otra función.
+          Redux-Thunk permite despachar funciones (en lugar de objetos)
+          como acciones. Esas funciones reciben dispatch y getState,
+          lo que permite lógica asíncrona (llamadas a APIs, etc.).
+        -->
+        <p>
+          <strong>redux-thunk</strong> permite que <code>dispatch</code> acepte
+          <em>funciones</em> además de objetos. La función recibida se ejecuta con
+          <code>(dispatch, getState)</code> como argumentos, habilitando llamadas asíncronas,
+          despachos condicionales y efectos secundarios.
+        </p>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">Bash — Instalación</span>
+          <button class="code-copy" onclick="copyCode(this)">copiar</button>
+        </div>
+        <pre><span class="fn">npm</span> install redux-thunk
+<span class="cm"># Con Redux Toolkit ya viene incluido por defecto</span></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">JavaScript — thunkActions.js</span>
+          <button class="code-copy" onclick="copyCode(this)">copiar</button>
+        </div>
+        <pre><span class="cm">// ─── Action Creator asíncrono con Thunk ───────────────────
+// fetchUsuario NO retorna un objeto plano, sino una función.
+// Redux-Thunk detecta que es función → la invoca con dispatch.
+// Patrón típico: loading → éxito/error → fin.</span>
+
+<span class="kw">import</span> <span class="vr">axios</span> <span class="kw">from</span> <span class="str">'axios'</span>;
+
+<span class="kw">export const</span> <span class="fn">fetchUsuario</span> <span class="op">=</span> (<span class="vr">id</span>) <span class="op">=></span>
+  <span class="kw">async</span> (<span class="vr">dispatch</span>, <span class="vr">getState</span>) <span class="op">=></span> {
+
+    <span class="cm">// Evitar petición duplicada si ya está cargando</span>
+    <span class="kw">const</span> { <span class="vr">cargando</span> } <span class="op">=</span> <span class="vr">getState</span>().<span class="vr">usuarios</span>;
+    <span class="kw">if</span> (<span class="vr">cargando</span>) <span class="kw">return</span>;
+
+    <span class="vr">dispatch</span>({ <span class="vr">type</span>: <span class="str">'FETCH_USUARIO_REQUEST'</span> });
+
+    <span class="kw">try</span> {
+      <span class="kw">const</span> { <span class="vr">data</span> } <span class="op">=</span> <span class="kw">await</span> <span class="vr">axios</span>.<span class="fn">get</span>(<span class="str">`/api/usuarios/<span class="op">${</span><span class="vr">id</span><span class="op">}</span>`</span>);
+      <span class="vr">dispatch</span>({ <span class="vr">type</span>: <span class="str">'FETCH_USUARIO_SUCCESS'</span>, <span class="vr">payload</span>: <span class="vr">data</span> });
+    } <span class="kw">catch</span> (<span class="vr">error</span>) {
+      <span class="vr">dispatch</span>({
+        <span class="vr">type</span>: <span class="str">'FETCH_USUARIO_FAILURE'</span>,
+        <span class="vr">payload</span>: <span class="vr">error</span>.<span class="vr">message</span>
+      });
+    }
+  };
+
+<span class="cm">// ─── Uso en un componente React ───────────────────────────</span>
+<span class="kw">import</span> { <span class="fn">useDispatch</span> } <span class="kw">from</span> <span class="str">'react-redux'</span>;
+
+<span class="kw">function</span> <span class="fn">Perfil</span>() {
+  <span class="kw">const</span> <span class="vr">dispatch</span> <span class="op">=</span> <span class="fn">useDispatch</span>();
+  <span class="cm">// dispatch acepta la función gracias a redux-thunk</span>
+  <span class="vr">dispatch</span>(<span class="fn">fetchUsuario</span>(<span class="cn">42</span>));
+}</pre>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════
+         SECCIÓN 4 — Redux-Sagas
+    ════════════════════════════════════ -->
+    <section id="sagas">
+      <div class="section-header">
+        <span class="section-num">04</span>
+        <h2>Redux-Sagas</h2>
+      </div>
+
+      <div class="concept-card">
+        <h3>
+          <span class="dot" style="background:var(--accent2)"></span>
+          ¿Qué es Redux-Saga?
+        </h3>
+        <!--
+          DEFINICIÓN: Redux-Saga es un middleware que gestiona efectos
+          secundarios (llamadas API, accesos a storage, etc.) usando
+          funciones generadoras de ES6. Permite controlar flujos
+          complejos como cancelaciones, reintentos y concurrencia.
+        -->
+        <p>
+          <strong>redux-saga</strong> gestiona efectos secundarios complejos usando
+          <em>generadores</em> (<code>function*</code>). A diferencia de Thunk, las sagas son
+          funciones declarativas que describen lo que <em>debe suceder</em>, facilitando
+          cancelaciones, reintentos, debouncing y flujos de concurrencia.
+        </p>
+      </div>
+
+      <!-- Tabla comparativa Thunk vs Saga -->
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Característica</th>
+            <th>Redux-Thunk</th>
+            <th>Redux-Saga</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Sintaxis</td>
+            <td><span class="badge badge-r">async/await</span></td>
+            <td><span class="badge badge-p">generators</span></td>
+          </tr>
+          <tr>
+            <td>Curva de aprendizaje</td>
+            <td>Baja</td>
+            <td>Alta</td>
+          </tr>
+          <tr>
+            <td>Cancelación de tareas</td>
+            <td>Manual (AbortController)</td>
+            <td><span class="badge badge-g">nativa (cancel)</span></td>
+          </tr>
+          <tr>
+            <td>Flujos complejos</td>
+            <td>Difícil</td>
+            <td><span class="badge badge-g">excelente</span></td>
+          </tr>
+          <tr>
+            <td>Testing</td>
+            <td>Requiere mocks</td>
+            <td><span class="badge badge-g">sin mocks (efectos)</span></td>
+          </tr>
+          <tr>
+            <td>Tamaño bundle</td>
+            <td><span class="badge badge-g">~1KB</span></td>
+            <td>~25KB</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">Bash — Instalación</span>
+          <button class="code-copy" onclick="copyCode(this)">copiar</button>
+        </div>
+        <pre><span class="fn">npm</span> install redux-saga</pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">JavaScript — sagas/usuarioSaga.js</span>
+          <button class="code-copy" onclick="copyCode(this)">copiar</button>
+        </div>
+        <pre><span class="cm">// ─── Redux-Saga: gestión asíncrona con generadores ────────
+// Los efectos (call, put, takeLatest) son objetos planos que
+// describen qué hacer — la librería los ejecuta.
+//   call()        → llama una función asíncrona de forma testeable
+//   put()         → despacha una acción al store
+//   takeLatest()  → cancela sagas anteriores si llega nueva acción</span>
+
+<span class="kw">import</span> { <span class="fn">call</span>, <span class="fn">put</span>, <span class="fn">takeLatest</span> } <span class="kw">from</span> <span class="str">'redux-saga/effects'</span>;
+<span class="kw">import</span> <span class="vr">axios</span> <span class="kw">from</span> <span class="str">'axios'</span>;
+
+<span class="cm">// Worker saga: ejecuta la lógica asíncrona</span>
+<span class="kw">function</span><span class="op">*</span> <span class="fn">fetchUsuarioSaga</span>({ <span class="vr">payload</span>: <span class="vr">id</span> }) {
+  <span class="kw">try</span> {
+    <span class="cm">// call() crea un efecto testeable (no llama axios directamente)</span>
+    <span class="kw">const</span> { <span class="vr">data</span> } <span class="op">=</span> <span class="kw">yield</span> <span class="fn">call</span>(<span class="vr">axios</span>.<span class="vr">get</span>, <span class="str">`/api/usuarios/<span class="op">${</span><span class="vr">id</span><span class="op">}</span>`</span>);
+
+    <span class="cm">// put() despacha la acción de éxito</span>
+    <span class="kw">yield</span> <span class="fn">put</span>({ <span class="vr">type</span>: <span class="str">'FETCH_USUARIO_SUCCESS'</span>, <span class="vr">payload</span>: <span class="vr">data</span> });
+  } <span class="kw">catch</span> (<span class="vr">error</span>) {
+    <span class="kw">yield</span> <span class="fn">put</span>({ <span class="vr">type</span>: <span class="str">'FETCH_USUARIO_FAILURE'</span>, <span class="vr">payload</span>: <span class="vr">error</span>.<span class="vr">message</span> });
+  }
+}
+
+<span class="cm">// Watcher saga: escucha acciones y lanza workers
+// takeLatest cancela el worker anterior si se despacha de nuevo</span>
+<span class="kw">export function</span><span class="op">*</span> <span class="fn">usuarioWatcher</span>() {
+  <span class="kw">yield</span> <span class="fn">takeLatest</span>(<span class="str">'FETCH_USUARIO_REQUEST'</span>, <span class="vr">fetchUsuarioSaga</span>);
+}
+
+<span class="cm">// ─── Root saga y configuración del store ──────────────────</span>
+<span class="kw">import</span> { <span class="fn">all</span> } <span class="kw">from</span> <span class="str">'redux-saga/effects'</span>;
+
+<span class="kw">export function</span><span class="op">*</span> <span class="fn">rootSaga</span>() {
+  <span class="kw">yield</span> <span class="fn">all</span>([
+    <span class="fn">usuarioWatcher</span>(),
+    <span class="cm">// ...otras sagas</span>
+  ]);
+}
+
+<span class="cm">// store.js</span>
+<span class="kw">import</span> <span class="fn">createSagaMiddleware</span> <span class="kw">from</span> <span class="str">'redux-saga'</span>;
+
+<span class="kw">const</span> <span class="vr">sagaMiddleware</span> <span class="op">=</span> <span class="fn">createSagaMiddleware</span>();
+<span class="kw">const</span> <span class="vr">store</span> <span class="op">=</span> <span class="fn">createStore</span>(<span class="vr">rootReducer</span>, <span class="fn">applyMiddleware</span>(<span class="vr">sagaMiddleware</span>));
+
+<span class="cm">// Iniciar sagas DESPUÉS de crear el store</span>
+<span class="vr">sagaMiddleware</span>.<span class="fn">run</span>(<span class="vr">rootSaga</span>);</pre>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════
+         SECCIÓN 5 — Deploy a Producción
+    ════════════════════════════════════ -->
+    <section id="deploy">
+      <div class="section-header">
+        <span class="section-num">05</span>
+        <h2>Deploy a Producción</h2>
+      </div>
+
+      <div class="concept-card">
+        <h3>
+          <span class="dot" style="background:var(--accent4)"></span>
+          Consideraciones para producción
+        </h3>
+        <!--
+          DEFINICIÓN: El deploy a producción implica configurar el
+          build para que elimine herramientas de desarrollo (logger),
+          optimice el bundle y gestione variables de entorno.
+          NODE_ENV=production es la clave para desactivar middlewares
+          de debug y activar optimizaciones de React/Redux.
+        -->
+        <p>
+          Al llevar una app Redux a producción, es fundamental desactivar middlewares de
+          desarrollo, optimizar el bundle y configurar correctamente las variables de entorno.
+          El flag <code>NODE_ENV=production</code> controla este comportamiento.
+        </p>
+      </div>
+
+      <!-- Pasos de deploy -->
+      <div class="deploy-steps">
+        <div class="deploy-step">
+          <span class="step-num">1</span>
+          <div class="step-content">
+            <h4>Separar middlewares por entorno</h4>
+            <p>Usar <code>process.env.NODE_ENV !== 'production'</code> para incluir redux-logger solo en desarrollo. Nunca expongas logs de estado en producción.</p>
+          </div>
+        </div>
+        <div class="deploy-step">
+          <span class="step-num">2</span>
+          <div class="step-content">
+            <h4>Configurar el store por entorno</h4>
+            <p>Crear dos archivos: <code>configureStore.dev.js</code> y <code>configureStore.prod.js</code>, importando el correcto según <code>NODE_ENV</code>.</p>
+          </div>
+        </div>
+        <div class="deploy-step">
+          <span class="step-num">3</span>
+          <div class="step-content">
+            <h4>Build de producción</h4>
+            <p>Ejecutar <code>npm run build</code> (Vite/CRA) genera un bundle minificado con dead code elimination, eliminando código de desarrollo.</p>
+          </div>
+        </div>
+        <div class="deploy-step">
+          <span class="step-num">4</span>
+          <div class="step-content">
+            <h4>Variables de entorno</h4>
+            <p>Usar archivos <code>.env.production</code> para URLs de API. Con Vite: <code>VITE_API_URL</code>; con CRA: <code>REACT_APP_API_URL</code>.</p>
+          </div>
+        </div>
+        <div class="deploy-step">
+          <span class="step-num">5</span>
+          <div class="step-content">
+            <h4>Despliegue</h4>
+            <p>Subir el contenido de <code>/dist</code> (Vite) o <code>/build</code> (CRA) a Vercel, Netlify, AWS S3 + CloudFront, o un servidor Nginx.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Código de configuración split por entorno -->
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">JavaScript — configureStore.js</span>
+          <button class="code-copy" onclick="copyCode(this)">copiar</button>
+        </div>
+        <pre><span class="cm">// ─── Store dinámico según NODE_ENV ───────────────────────
+// En desarrollo: incluye logger + Redux DevTools Extension
+// En producción: solo middlewares necesarios (thunk/saga)
+// Este patrón mantiene el bundle de producción limpio.</span>
+
+<span class="kw">import</span> { <span class="fn">configureStore</span> } <span class="kw">from</span> <span class="str">'@reduxjs/toolkit'</span>;
+<span class="kw">import</span> <span class="fn">createSagaMiddleware</span> <span class="kw">from</span> <span class="str">'redux-saga'</span>;
+<span class="kw">import</span> { <span class="vr">rootSaga</span> } <span class="kw">from</span> <span class="str">'./sagas'</span>;
+<span class="kw">import</span> { <span class="vr">rootReducer</span> } <span class="kw">from</span> <span class="str">'./reducers'</span>;
+
+<span class="kw">const</span> <span class="vr">isDev</span> <span class="op">=</span> <span class="vr">process</span>.<span class="vr">env</span>.<span class="cn">NODE_ENV</span> <span class="op">!==</span> <span class="str">'production'</span>;
+
+<span class="kw">export function</span> <span class="fn">setupStore</span>() {
+  <span class="kw">const</span> <span class="vr">sagaMiddleware</span> <span class="op">=</span> <span class="fn">createSagaMiddleware</span>();
+
+  <span class="kw">const</span> <span class="vr">store</span> <span class="op">=</span> <span class="fn">configureStore</span>({
+    <span class="vr">reducer</span>: <span class="vr">rootReducer</span>,
+    <span class="vr">middleware</span>: (<span class="fn">getDefaultMiddleware</span>) <span class="op">=></span> {
+      <span class="kw">let</span> <span class="vr">chain</span> <span class="op">=</span> <span class="fn">getDefaultMiddleware</span>({ <span class="vr">thunk</span>: <span class="kw">true</span> })
+        .<span class="fn">concat</span>(<span class="vr">sagaMiddleware</span>);
+
+      <span class="cm">// Logger SOLO en desarrollo (ver-sección-02)</span>
+      <span class="kw">if</span> (<span class="vr">isDev</span>) {
+        <span class="kw">const</span> { <span class="fn">createLogger</span> } <span class="op">=</span> <span class="fn">require</span>(<span class="str">'redux-logger'</span>);
+        <span class="vr">chain</span> <span class="op">=</span> <span class="vr">chain</span>.<span class="fn">concat</span>(<span class="fn">createLogger</span>({ <span class="vr">collapsed</span>: <span class="kw">true</span> }));
+      }
+
+      <span class="kw">return</span> <span class="vr">chain</span>;
+    },
+    <span class="cm">// Redux DevTools desactivado en producción automáticamente</span>
+    <span class="vr">devTools</span>: <span class="vr">isDev</span>,
+  });
+
+  <span class="vr">sagaMiddleware</span>.<span class="fn">run</span>(<span class="vr">rootSaga</span>);
+  <span class="kw">return</span> <span class="vr">store</span>;
+}
+
+<span class="cm">// ─── Uso en index.js / main.jsx ───────────────────────────</span>
+<span class="kw">import</span> { <span class="cn">Provider</span> } <span class="kw">from</span> <span class="str">'react-redux'</span>;
+<span class="kw">import</span> { <span class="fn">setupStore</span> } <span class="kw">from</span> <span class="str">'./store/configureStore'</span>;
+
+<span class="kw">const</span> <span class="vr">store</span> <span class="op">=</span> <span class="fn">setupStore</span>();
+
+<span class="cn">ReactDOM</span>.<span class="fn">render</span>(
+  &lt;<span class="fn">Provider</span> <span class="vr">store</span><span class="op">={</span><span class="vr">store</span><span class="op">}</span>&gt;
+    &lt;<span class="cn">App</span> /&gt;
+  &lt;/<span class="fn">Provider</span>&gt;,
+  <span class="vr">document</span>.<span class="fn">getElementById</span>(<span class="str">'root'</span>)
+);</pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">Bash — Build y deploy a Netlify/Vercel</span>
+          <button class="code-copy" onclick="copyCode(this)">copiar</button>
+        </div>
+        <pre><span class="cm"># 1. Build de producción (minifica y elimina código dev)</span>
+<span class="fn">npm</span> run build
+
+<span class="cm"># 2. Preview local del build de producción</span>
+<span class="fn">npm</span> run preview
+
+<span class="cm"># 3. Deploy a Netlify (CLI)</span>
+<span class="fn">npx</span> netlify-cli deploy --prod --dir=dist
+
+<span class="cm"># 4. Deploy a Vercel</span>
+<span class="fn">npx</span> vercel --prod</pre>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    · <a style="text-decoration: none;" href="https://desingdata.github.io/desingdata/" target="_blank"><strong>Desing
+        Data</strong> </a> 2026 |
+    · By <a style="text-decoration: none;" href="https://miguelmauricioriveralopez18686.github.io/mrlPortafolio/"
+      target="_blank"><strong>Miguel Mauricio Rivera López</strong></a>
+  </footer>
+  </footer>
+
+  <!-- ════════════════════════════════════════
+       JAVASCRIPT: Navbar hamburguesa + Tema
+  ════════════════════════════════════════ -->
+  <script>
+    /* ─── Cambio de tema (claro / oscuro) ─────────────────────
+       Guarda la preferencia en localStorage para persistirla.
+       Por defecto respeta la preferencia del sistema operativo. */
+    const html = document.documentElement;
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon  = document.getElementById('themeIcon');
+    const themeLabel = document.getElementById('themeLabel');
+
+    // Leer preferencia guardada o del sistema
+    const savedTheme = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const initTheme = savedTheme || (prefersDark ? 'dark' : 'light');
+    applyTheme(initTheme);
+
+    function applyTheme(theme) {
+      html.setAttribute('data-theme', theme);
+      themeIcon.textContent  = theme === 'dark' ? '☀️' : '🌙';
+      themeLabel.textContent = theme === 'dark' ? 'Claro' : 'Oscuro';
+      localStorage.setItem('theme', theme);
+    }
+
+    themeToggle.addEventListener('click', () => {
+      const current = html.getAttribute('data-theme');
+      applyTheme(current === 'dark' ? 'light' : 'dark');
+    });
+
+    /* ─── Navbar hamburguesa ───────────────────────────────────
+       Alterna la clase 'open' en el botón y el menú móvil.
+       Cierra el menú al hacer clic en cualquier enlace. */
+    const hamburger  = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('open');
+      mobileMenu.classList.toggle('open');
+    });
+
+    // Cerrar menú al seleccionar un enlace (función global)
+    function closeMenu() {
+      hamburger.classList.remove('open');
+      mobileMenu.classList.remove('open');
+    }
+
+    /* ─── Copiar código al portapapeles ────────────────────────
+       Cambia el texto del botón temporalmente para feedback. */
+    function copyCode(btn) {
+      const pre = btn.closest('.code-block').querySelector('pre');
+      navigator.clipboard.writeText(pre.innerText).then(() => {
+        btn.textContent = '✓ copiado';
+        setTimeout(() => { btn.textContent = 'copiar'; }, 1800);
+      });
+    }
+  </script>
+</body>
+</html>

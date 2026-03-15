@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Introducción a Redux</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="icon" href="https://desingdata.github.io/desingdata/img/DesingData_favicon-96x96.png" sizes="96x96"
+    type="image/png">
+  <style>
+    /* ==========================================
+       VARIABLES DE TEMA (LIGHT / DARK)
+       Redux usa un único store de estado — aquí
+       las CSS variables actúan como ese store
+       ========================================== */
+    :root {
+      --bg:        #f4f2ee;
+      --bg2:       #ffffff;
+      --bg3:       #eae8e4;
+      --text:      #1a1a1a;
+      --text2:     #555;
+      --accent:    #764abc;     /* color oficial de Redux */
+      --accent2:   #593196;
+      --tag:       #f0ebfa;
+      --tag-text:  #593196;
+      --border:    rgba(0,0,0,.1);
+      --code-bg:   #1e1e2e;
+      --code-text: #cdd6f4;
+      --nav-bg:    #ffffff;
+      --nav-shadow:0 2px 18px rgba(0,0,0,.08);
+      --card-sh:   0 4px 24px rgba(118,74,188,.08);
+      --arrow:     #764abc;
+    }
+    [data-theme="dark"] {
+      --bg:        #12101a;
+      --bg2:       #1c1828;
+      --bg3:       #251f35;
+      --text:      #ede9f8;
+      --text2:     #a89cc8;
+      --accent:    #a78bfa;
+      --accent2:   #c4b5fd;
+      --tag:       #2e2545;
+      --tag-text:  #c4b5fd;
+      --border:    rgba(255,255,255,.08);
+      --code-bg:   #0d0b14;
+      --code-text: #cdd6f4;
+      --nav-bg:    #1c1828;
+      --nav-shadow:0 2px 18px rgba(0,0,0,.4);
+      --card-sh:   0 4px 24px rgba(167,139,250,.07);
+      --arrow:     #a78bfa;
+    }
+
+    /* ==========================================
+       RESET & BASE
+       ========================================== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Syne', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      transition: background .3s, color .3s;
+      line-height: 1.7;
+    }
+
+    /* ==========================================
+       NAVBAR (con menú hamburguesa)
+       El NavBar actúa como el Dispatcher en Flux:
+       recibe acciones (clics) y las envía
+       ========================================== */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 999;
+      background: var(--nav-bg);
+      box-shadow: var(--nav-shadow);
+      transition: background .3s, box-shadow .3s;
+    }
+    .nav-inner {
+      max-width: 1100px; margin: auto;
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: .75rem 1.5rem;
+    }
+    .nav-logo {
+      font-size: 1.2rem; font-weight: 700;
+      color: var(--accent); text-decoration: none;
+      display: flex; align-items: center; gap: .5rem;
+    }
+    .nav-logo span {
+      background: var(--accent);
+      color: #fff;
+      border-radius: 6px;
+      padding: 2px 8px;
+      font-size: .85rem;
+    }
+    .nav-links {
+      display: flex; align-items: center; gap: .25rem;
+    }
+    .nav-links a {
+      text-decoration: none; color: var(--text2);
+      font-size: .88rem; font-weight: 500;
+      padding: .4rem .75rem; border-radius: 8px;
+      transition: background .2s, color .2s;
+    }
+    .nav-links a:hover { background: var(--tag); color: var(--accent); }
+
+    /* Botón de tema */
+    #theme-btn {
+      background: var(--tag);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      width: 36px; height: 36px;
+      font-size: 1.05rem;
+      cursor: pointer; color: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      transition: background .2s, transform .2s;
+      margin-left: .5rem;
+    }
+    #theme-btn:hover { transform: rotate(20deg); }
+
+    /* Botón hamburguesa */
+    #hamburger {
+      display: none; flex-direction: column;
+      gap: 5px; cursor: pointer;
+      background: none; border: none;
+      padding: .25rem;
+    }
+    #hamburger span {
+      display: block; width: 24px; height: 2.5px;
+      background: var(--accent); border-radius: 2px;
+      transition: transform .3s, opacity .3s;
+    }
+    #hamburger.open span:nth-child(1) { transform: translateY(7.5px) rotate(45deg); }
+    #hamburger.open span:nth-child(2) { opacity: 0; }
+    #hamburger.open span:nth-child(3) { transform: translateY(-7.5px) rotate(-45deg); }
+
+    /* Menú móvil */
+    .mobile-menu {
+      display: none; flex-direction: column; gap: .25rem;
+      padding: 1rem 1.5rem 1.25rem;
+      border-top: 1px solid var(--border);
+    }
+    .mobile-menu a {
+      text-decoration: none; color: var(--text2);
+      font-size: .95rem; font-weight: 500;
+      padding: .55rem .75rem; border-radius: 8px;
+      transition: background .2s, color .2s;
+    }
+    .mobile-menu a:hover { background: var(--tag); color: var(--accent); }
+    .mobile-menu.open { display: flex; }
+
+    /* ==========================================
+       HERO
+       ========================================== */
+    .hero {
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      text-align: center;
+      padding: 7rem 1.5rem 4rem;
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, color-mix(in srgb, var(--accent) 12%, transparent), transparent);
+    }
+    .hero-content { max-width: 720px; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: .5rem;
+      background: var(--tag); color: var(--tag-text);
+      border-radius: 20px; padding: .3rem .9rem;
+      font-size: .82rem; font-weight: 600;
+      margin-bottom: 1.5rem;
+      border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+    }
+    .hero h1 {
+      font-size: clamp(2.2rem, 6vw, 3.8rem);
+      font-weight: 700; line-height: 1.15;
+      color: var(--text);
+      margin-bottom: 1.2rem;
+    }
+    .hero h1 em {
+      font-style: normal;
+      color: var(--accent);
+      position: relative;
+    }
+    .hero p {
+      font-size: 1.1rem; color: var(--text2);
+      max-width: 560px; margin: 0 auto 2rem;
+    }
+    .hero-cta {
+      display: inline-flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
+    }
+    .btn-primary {
+      background: var(--accent); color: #fff;
+      padding: .7rem 1.6rem; border-radius: 10px;
+      font-weight: 600; font-size: .95rem;
+      text-decoration: none;
+      transition: background .2s, transform .15s;
+      border: none; cursor: pointer;
+    }
+    .btn-primary:hover { background: var(--accent2); transform: translateY(-2px); }
+    .btn-secondary {
+      background: var(--tag); color: var(--accent);
+      padding: .7rem 1.6rem; border-radius: 10px;
+      font-weight: 600; font-size: .95rem;
+      text-decoration: none;
+      border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+      transition: background .2s, transform .15s;
+    }
+    .btn-secondary:hover { background: var(--bg3); transform: translateY(-2px); }
+
+    /* ==========================================
+       SECCIÓN GENÉRICA
+       ========================================== */
+    section {
+      padding: 5rem 1.5rem;
+      max-width: 1100px; margin: auto;
+    }
+    .section-tag {
+      display: inline-block;
+      background: var(--tag); color: var(--tag-text);
+      border-radius: 6px; padding: .2rem .7rem;
+      font-size: .78rem; font-weight: 600;
+      letter-spacing: .08em; text-transform: uppercase;
+      margin-bottom: .75rem;
+    }
+    .section-title {
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 700; margin-bottom: .6rem;
+      color: var(--text);
+    }
+    .section-subtitle {
+      color: var(--text2); font-size: 1rem;
+      max-width: 620px; margin-bottom: 3rem;
+    }
+    .section-divider {
+      border: none; border-top: 1px solid var(--border);
+      margin: 0 0 4rem;
+    }
+
+    /* ==========================================
+       TARJETAS DE CONCEPTO
+       ========================================== */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+    }
+    .card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.75rem 1.5rem;
+      transition: transform .2s, box-shadow .2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      opacity: 0; transition: opacity .2s;
+    }
+    .card:hover { transform: translateY(-4px); box-shadow: var(--card-sh); }
+    .card:hover::before { opacity: 1; }
+    .card-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: var(--tag); color: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; margin-bottom: 1rem;
+    }
+    .card h3 { font-size: 1.05rem; font-weight: 600; margin-bottom: .5rem; }
+    .card p { font-size: .88rem; color: var(--text2); line-height: 1.65; }
+
+    /* ==========================================
+       ARQUITECTURA FLUX — DIAGRAMA VISUAL
+       Un diagrama interactivo que muestra el flujo
+       unidireccional de datos en Flux/Redux
+       ========================================== */
+    .flux-diagram {
+      display: flex; align-items: center;
+      justify-content: center; flex-wrap: wrap;
+      gap: 0; margin: 2.5rem 0;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2.5rem 1.5rem;
+    }
+    .flux-node {
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      text-align: center;
+      min-width: 110px;
+      cursor: pointer;
+      transition: background .2s, border-color .2s, transform .15s;
+      position: relative;
+    }
+    .flux-node:hover,
+    .flux-node.active {
+      background: var(--tag);
+      border-color: var(--accent);
+      transform: scale(1.05);
+    }
+    .flux-node .fn-icon { font-size: 1.6rem; display: block; margin-bottom: .3rem; }
+    .flux-node .fn-title {
+      font-size: .82rem; font-weight: 700;
+      color: var(--accent); display: block;
+    }
+    .flux-node .fn-desc {
+      font-size: .72rem; color: var(--text2);
+      display: block; margin-top: .2rem;
+    }
+    .flux-arrow {
+      display: flex; align-items: center;
+      padding: 0 .6rem;
+      color: var(--arrow); font-size: 1.3rem;
+      user-select: none;
+    }
+    .flux-info {
+      margin-top: 1.5rem; width: 100%;
+      background: var(--tag);
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      font-size: .88rem; color: var(--text2);
+      border-left: 3px solid var(--accent);
+      min-height: 52px;
+      transition: all .2s;
+    }
+    .flux-info strong { color: var(--accent); }
+
+    /* ==========================================
+       BLOQUES DE CÓDIGO
+       Representan la parte "Store" de Redux:
+       contienen el estado (código) de la app
+       ========================================== */
+    .code-block {
+      background: var(--code-bg);
+      border-radius: 14px;
+      overflow: hidden;
+      margin: 1.5rem 0;
+      border: 1px solid rgba(255,255,255,.05);
+    }
+    .code-header {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: .7rem 1.1rem;
+      background: rgba(255,255,255,.04);
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+    .code-dots { display: flex; gap: 6px; }
+    .code-dots span {
+      width: 11px; height: 11px; border-radius: 50%;
+    }
+    .code-dots span:nth-child(1) { background: #ff5f56; }
+    .code-dots span:nth-child(2) { background: #ffbd2e; }
+    .code-dots span:nth-child(3) { background: #27c93f; }
+    .code-filename {
+      font-family: 'Fira Code', monospace;
+      font-size: .78rem; color: rgba(255,255,255,.4);
+    }
+    .code-block pre {
+      font-family: 'Fira Code', monospace;
+      font-size: .84rem;
+      color: var(--code-text);
+      padding: 1.4rem 1.5rem;
+      overflow-x: auto;
+      line-height: 1.75;
+      tab-size: 2;
+    }
+    .hl-kw   { color: #cba6f7; }   /* keyword  */
+    .hl-fn   { color: #89b4fa; }   /* function */
+    .hl-str  { color: #a6e3a1; }   /* string   */
+    .hl-num  { color: #fab387; }   /* number   */
+    .hl-cm   { color: #6c7086; font-style: italic; } /* comment */
+    .hl-obj  { color: #f38ba8; }   /* object key */
+    .hl-op   { color: #94e2d5; }   /* operator */
+
+    /* ==========================================
+       MINI DEMO REDUX — componente interactivo
+       Simula un Store Redux real: state + actions
+       ========================================== */
+    .demo-wrapper {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2rem;
+      margin-top: 2rem;
+    }
+    .demo-title {
+      font-size: 1rem; font-weight: 600;
+      margin-bottom: 1.25rem;
+      display: flex; align-items: center; gap: .5rem;
+      color: var(--accent);
+    }
+    .demo-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+    @media (max-width: 600px) {
+      .demo-grid { grid-template-columns: 1fr; }
+    }
+    .demo-panel {
+      background: var(--bg3);
+      border-radius: 12px; padding: 1.25rem;
+    }
+    .demo-panel h4 {
+      font-size: .8rem; font-weight: 700;
+      letter-spacing: .08em; text-transform: uppercase;
+      color: var(--text2); margin-bottom: 1rem;
+    }
+    .state-display {
+      background: var(--code-bg);
+      border-radius: 8px;
+      padding: .9rem 1rem;
+      font-family: 'Fira Code', monospace;
+      font-size: .82rem;
+      color: var(--code-text);
+      line-height: 1.8;
+    }
+    .state-val { color: #fab387; }
+    .state-key { color: #f38ba8; }
+    .action-buttons { display: flex; flex-direction: column; gap: .6rem; }
+    .action-btn {
+      background: var(--tag);
+      color: var(--accent);
+      border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+      border-radius: 8px; padding: .6rem .9rem;
+      font-family: 'Fira Code', monospace;
+      font-size: .8rem; font-weight: 500;
+      cursor: pointer;
+      text-align: left;
+      transition: background .2s, transform .1s;
+    }
+    .action-btn:hover { background: color-mix(in srgb, var(--accent) 15%, transparent); transform: translateX(3px); }
+    .dispatch-log {
+      background: var(--code-bg);
+      border-radius: 8px;
+      padding: .9rem 1rem;
+      font-family: 'Fira Code', monospace;
+      font-size: .78rem;
+      color: #6c7086;
+      min-height: 100px;
+      max-height: 150px;
+      overflow-y: auto;
+    }
+    .log-entry { margin-bottom: .35rem; }
+    .log-entry.new { color: #a6e3a1; }
+
+    /* ==========================================
+       TARJETAS DE COMPONENTES PRINCIPALES
+       ========================================== */
+    .comp-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.25rem;
+    }
+    .comp-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.5rem;
+      position: relative;
+    }
+    .comp-num {
+      font-size: 2.5rem; font-weight: 700;
+      color: color-mix(in srgb, var(--accent) 15%, transparent);
+      line-height: 1; margin-bottom: .5rem;
+      font-family: 'Fira Code', monospace;
+    }
+    .comp-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: .4rem; }
+    .comp-card p  { font-size: .86rem; color: var(--text2); }
+    .comp-tag {
+      display: inline-block; margin-top: .8rem;
+      background: var(--tag); color: var(--tag-text);
+      border-radius: 6px; padding: .2rem .6rem;
+      font-size: .75rem; font-weight: 600;
+      font-family: 'Fira Code', monospace;
+    }
+
+    /* ==========================================
+       FOOTER
+       ========================================== */
+    footer {
+      text-align: center; padding: 2.5rem 1.5rem;
+      border-top: 1px solid var(--border);
+      color: var(--text2); font-size: .85rem;
+    }
+    footer strong { color: var(--accent); }
+
+    /* ==========================================
+       RESPONSIVE — menú hamburguesa activo
+       ========================================== */
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      #hamburger { display: flex; }
+    }
+
+    /* ==========================================
+       SCROLLBAR
+       ========================================== */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  </style>
+</head>
+<body>
+
+<!-- =============================================
+     NAVBAR
+     Actúa como el "View Layer" de Redux:
+     observa el estado y despacha acciones
+     ============================================= -->
+<nav id="navbar">
+  <div class="nav-inner">
+    <a href="#hero" class="nav-logo">
+      Redux <span>Intro</span>
+    </a>
+
+    <!-- Links escritorio -->
+    <div class="nav-links" id="nav-links">
+      <a href="#concepto">Concepto</a>
+      <a href="#flux">Flux</a>
+      <a href="#react">React</a>
+      <a href="#componentes">Componentes</a>
+      <!-- Botón de tema: despacha la "acción" cambio de tema -->
+      <button id="theme-btn" onclick="toggleTheme()" title="Cambiar tema" aria-label="Cambiar tema">
+        <span id="theme-icon">🌙</span>
+      </button>
+    </div>
+
+    <!-- Controles móvil -->
+    <div style="display:flex;align-items:center;gap:.5rem">
+      <button id="theme-btn-mobile" onclick="toggleTheme()" title="Cambiar tema" aria-label="Cambiar tema" style="background:var(--tag);border:1px solid var(--border);border-radius:50%;width:36px;height:36px;font-size:1.05rem;cursor:pointer;color:var(--accent);display:flex;align-items:center;justify-content:center;">
+        <span id="theme-icon-m">🌙</span>
+      </button>
+      <button id="hamburger" onclick="toggleMenu()" aria-label="Menú">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Menú móvil desplegable -->
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="#concepto"    onclick="closeMenu()">Concepto</a>
+    <a href="#flux"        onclick="closeMenu()">Arquitectura Flux</a>
+    <a href="#react"       onclick="closeMenu()">Comunicación React</a>
+    <a href="#componentes" onclick="closeMenu()">Componentes</a>
+  </div>
+</nav>
+
+<!-- =============================================
+     HERO
+     ============================================= -->
+<div class="hero" id="hero">
+  <div class="hero-content">
+    <div class="hero-badge">
+      📦 Gestión de Estado Predecible
+    </div>
+    <h1>
+      Aprende <em>Redux</em><br />desde cero
+    </h1>
+    <p>
+      Un contenedor de estado predecible para aplicaciones JavaScript.
+      Exploraremos su arquitectura, sus piezas clave y cómo se integra con React.
+    </p>
+    <div class="hero-cta">
+      <a href="#concepto" class="btn-primary">Comenzar →</a>
+      <a href="#componentes" class="btn-secondary">Ver componentes</a>
+    </div>
+  </div>
+</div>
+
+<!-- =============================================
+     SECCIÓN 1 — CONCEPTO DE REDUX
+     Redux es un patrón de gestión de estado
+     que centraliza los datos en un único Store.
+     ============================================= -->
+<section id="concepto">
+  <hr class="section-divider" />
+  <div class="section-tag">01 · Concepto</div>
+  <h2 class="section-title">¿Qué es Redux?</h2>
+  <p class="section-subtitle">
+    Redux es una biblioteca de gestión de estado predecible para aplicaciones JS,
+    inspirada en la arquitectura Flux de Facebook y la programación funcional.
+  </p>
+
+  <div class="cards-grid">
+    <!-- Tarjeta: Estado único -->
+    <div class="card">
+      <div class="card-icon">🏛️</div>
+      <h3>Single Source of Truth</h3>
+      <!-- CONCEPTO: El estado global de la app vive en UN solo Store,
+           lo que facilita depuración e hidratación del estado. -->
+      <p>
+        Todo el estado de la aplicación se almacena en un único árbol de objetos
+        dentro de un solo <strong>Store</strong>. Esto simplifica la depuración
+        y el mantenimiento del estado global.
+      </p>
+    </div>
+
+    <!-- Tarjeta: Estado de solo lectura -->
+    <div class="card">
+      <div class="card-icon">🔒</div>
+      <h3>Estado de Solo Lectura</h3>
+      <!-- CONCEPTO: El estado es inmutable. La única forma de mutarlo
+           es mediante el dispatch de una Action. -->
+      <p>
+        El estado nunca se modifica directamente. La única manera de cambiar
+        el estado es emitiendo una <strong>acción</strong> (action), un objeto
+        que describe qué ocurrió.
+      </p>
+    </div>
+
+    <!-- Tarjeta: Cambios con funciones puras -->
+    <div class="card">
+      <div class="card-icon">⚡</div>
+      <h3>Cambios con Funciones Puras</h3>
+      <!-- CONCEPTO: Los Reducers son funciones puras que reciben el estado
+           actual y una acción, y retornan el nuevo estado. -->
+      <p>
+        Los <strong>Reducers</strong> son funciones puras: dado el mismo estado
+        y la misma acción, siempre devuelven el mismo resultado, sin efectos
+        secundarios.
+      </p>
+    </div>
+
+    <!-- Tarjeta: Flujo unidireccional -->
+    <div class="card">
+      <div class="card-icon">🔄</div>
+      <h3>Flujo Unidireccional</h3>
+      <!-- CONCEPTO: Los datos siempre fluyen en una dirección:
+           Action → Reducer → Store → View. Esto hace el código
+           muy predecible y fácil de trazar. -->
+      <p>
+        Los datos fluyen en una sola dirección: <strong>Action → Reducer → Store
+        → View</strong>. Esta predictibilidad reduce los bugs y facilita el
+        testing.
+      </p>
+    </div>
+  </div>
+
+  <!-- Bloque de código: instalación básica -->
+  <div class="code-block" style="margin-top:2.5rem">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-filename">terminal</span>
+    </div>
+    <pre><span class="hl-cm"># Instalar Redux y React-Redux</span>
+<span class="hl-fn">npm</span> install <span class="hl-str">redux react-redux</span>
+
+<span class="hl-cm"># Con Redux Toolkit (recomendado, reduce boilerplate)</span>
+<span class="hl-fn">npm</span> install <span class="hl-str">@reduxjs/toolkit react-redux</span></pre>
+  </div>
+</section>
+
+<!-- =============================================
+     SECCIÓN 2 — ARQUITECTURA FLUX
+     Flux es el patrón de diseño que inspiró Redux.
+     Define un flujo de datos estrictamente unidireccional.
+     ============================================= -->
+<section id="flux">
+  <hr class="section-divider" />
+  <div class="section-tag">02 · Arquitectura</div>
+  <h2 class="section-title">Arquitectura Flux</h2>
+  <p class="section-subtitle">
+    Flux es el patrón de diseño de Facebook que inspiró Redux.
+    Haz clic en cada nodo para conocer su rol dentro del flujo.
+  </p>
+
+  <!-- Diagrama interactivo Flux -->
+  <div class="flux-diagram">
+    <!-- NODO: Action — describe qué ocurrió en la app -->
+    <div class="flux-node" id="fn-action" onclick="showFluxInfo('action')" tabindex="0">
+      <span class="fn-icon">📤</span>
+      <span class="fn-title">Action</span>
+      <span class="fn-desc">Evento disparado</span>
+    </div>
+
+    <div class="flux-arrow">→</div>
+
+    <!-- NODO: Dispatcher — enrutador central de todas las acciones -->
+    <div class="flux-node" id="fn-dispatcher" onclick="showFluxInfo('dispatcher')" tabindex="0">
+      <span class="fn-icon">📡</span>
+      <span class="fn-title">Dispatcher</span>
+      <span class="fn-desc">Enrutador central</span>
+    </div>
+
+    <div class="flux-arrow">→</div>
+
+    <!-- NODO: Store — contiene y administra el estado -->
+    <div class="flux-node" id="fn-store" onclick="showFluxInfo('store')" tabindex="0">
+      <span class="fn-icon">🗄️</span>
+      <span class="fn-title">Store</span>
+      <span class="fn-desc">Estado + Lógica</span>
+    </div>
+
+    <div class="flux-arrow">→</div>
+
+    <!-- NODO: View — la interfaz React que consume el Store -->
+    <div class="flux-node" id="fn-view" onclick="showFluxInfo('view')" tabindex="0">
+      <span class="fn-icon">🖥️</span>
+      <span class="fn-title">View</span>
+      <span class="fn-desc">Componentes React</span>
+    </div>
+
+    <!-- Panel de información dinámica -->
+    <div class="flux-info" id="flux-info">
+      👆 Haz clic en cualquier nodo para explorar su función en el flujo de datos.
+    </div>
+  </div>
+
+  <!-- Bloque de código: ejemplo de acción Flux/Redux -->
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-filename">actions/counter.js</span>
+    </div>
+    <!-- ACTION: objeto plano con { type, payload } que describe un evento -->
+    <pre><span class="hl-cm">// ACTION: objeto plano que describe qué ocurrió.
+// El campo "type" es obligatorio; "payload" es opcional.</span>
+
+<span class="hl-kw">const</span> <span class="hl-obj">INCREMENT</span> = <span class="hl-str">'counter/INCREMENT'</span>;
+<span class="hl-kw">const</span> <span class="hl-obj">DECREMENT</span> = <span class="hl-str">'counter/DECREMENT'</span>;
+
+<span class="hl-cm">// Action Creator: función que crea y retorna la acción</span>
+<span class="hl-kw">export const</span> <span class="hl-fn">increment</span> = (amount) <span class="hl-op">=></span> ({
+  <span class="hl-obj">type</span>: INCREMENT,
+  <span class="hl-obj">payload</span>: amount
+});
+
+<span class="hl-cm">// Dispatch de la acción desde la UI:</span>
+<span class="hl-cm">// dispatch(increment(5)) → notifica a todos los reducers</span></pre>
+  </div>
+</section>
+
+<!-- =============================================
+     SECCIÓN 3 — COMUNICACIÓN CON REACT
+     React-Redux conecta el Store de Redux con
+     los componentes React mediante hooks y el Provider.
+     ============================================= -->
+<section id="react">
+  <hr class="section-divider" />
+  <div class="section-tag">03 · Integración</div>
+  <h2 class="section-title">Comunicación con React</h2>
+  <p class="section-subtitle">
+    La librería <strong>react-redux</strong> conecta el Store con los componentes.
+    Usa el <code>Provider</code>, <code>useSelector</code> y <code>useDispatch</code>.
+  </p>
+
+  <!-- Bloque de código: Provider -->
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-filename">index.jsx</span>
+    </div>
+    <!-- PROVIDER: componente que envuelve la app y provee el Store
+         a todos los componentes descendientes mediante Context API -->
+    <pre><span class="hl-kw">import</span> { <span class="hl-fn">Provider</span> } <span class="hl-kw">from</span> <span class="hl-str">'react-redux'</span>;
+<span class="hl-kw">import</span> { <span class="hl-fn">store</span> } <span class="hl-kw">from</span> <span class="hl-str">'./store'</span>;
+
+<span class="hl-cm">// PROVIDER: envuelve toda la app para que cualquier
+// componente pueda acceder al Store de Redux.</span>
+<span class="hl-fn">ReactDOM</span>.render(
+  &lt;<span class="hl-fn">Provider</span> <span class="hl-obj">store</span>={store}&gt;
+    &lt;<span class="hl-fn">App</span> /&gt;
+  &lt;/<span class="hl-fn">Provider</span>&gt;,
+  document.getElementById(<span class="hl-str">'root'</span>)
+);</pre>
+  </div>
+
+  <!-- Bloque de código: hooks useSelector y useDispatch -->
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-filename">components/Counter.jsx</span>
+    </div>
+    <pre><span class="hl-kw">import</span> { <span class="hl-fn">useSelector</span>, <span class="hl-fn">useDispatch</span> } <span class="hl-kw">from</span> <span class="hl-str">'react-redux'</span>;
+<span class="hl-kw">import</span> { <span class="hl-fn">increment</span>, <span class="hl-fn">decrement</span> } <span class="hl-kw">from</span> <span class="hl-str">'./counterSlice'</span>;
+
+<span class="hl-kw">function</span> <span class="hl-fn">Counter</span>() {
+  <span class="hl-cm">// useSelector: suscribe el componente a una parte del Store.
+  // Se re-renderiza sólo cuando ese trozo de estado cambia.</span>
+  <span class="hl-kw">const</span> count = <span class="hl-fn">useSelector</span>((state) <span class="hl-op">=></span> state.counter.value);
+
+  <span class="hl-cm">// useDispatch: retorna la función dispatch para enviar acciones.</span>
+  <span class="hl-kw">const</span> dispatch = <span class="hl-fn">useDispatch</span>();
+
+  <span class="hl-kw">return</span> (
+    &lt;<span class="hl-fn">div</span>&gt;
+      &lt;<span class="hl-fn">span</span>&gt;{count}&lt;/<span class="hl-fn">span</span>&gt;
+      &lt;<span class="hl-fn">button</span> onClick={() <span class="hl-op">=></span> dispatch(<span class="hl-fn">increment</span>())}&gt;+&lt;/<span class="hl-fn">button</span>&gt;
+      &lt;<span class="hl-fn">button</span> onClick={() <span class="hl-op">=></span> dispatch(<span class="hl-fn">decrement</span>())}&gt;-&lt;/<span class="hl-fn">button</span>&gt;
+    &lt;/<span class="hl-fn">div</span>&gt;
+  );
+}</pre>
+  </div>
+
+  <!-- MINI DEMO INTERACTIVA: simulación de Redux Store en JS puro -->
+  <div class="demo-wrapper">
+    <div class="demo-title">
+      ⚡ Demo interactiva — Store simulado
+    </div>
+    <div class="demo-grid">
+      <!-- Panel estado actual -->
+      <div class="demo-panel">
+        <h4>Estado del Store</h4>
+        <div class="state-display" id="state-display">
+{
+  <span class="state-key">"counter"</span>: <span class="state-val" id="sd-count">0</span>,
+  <span class="state-key">"user"</span>: {
+    <span class="state-key">"name"</span>: <span class="state-val" id="sd-name">"Invitado"</span>,
+    <span class="state-key">"logged"</span>: <span class="state-val" id="sd-logged">false</span>
+  },
+  <span class="state-key">"theme"</span>: <span class="state-val" id="sd-theme">"light"</span>
+}
+        </div>
+      </div>
+      <!-- Panel acciones -->
+      <div class="demo-panel">
+        <h4>Despachar Acciones</h4>
+        <!-- Cada botón simula un dispatch() de Redux -->
+        <div class="action-buttons">
+          <button class="action-btn" onclick="demoDispatch('INCREMENT')">
+            dispatch({ type: 'INCREMENT' })
+          </button>
+          <button class="action-btn" onclick="demoDispatch('DECREMENT')">
+            dispatch({ type: 'DECREMENT' })
+          </button>
+          <button class="action-btn" onclick="demoDispatch('RESET')">
+            dispatch({ type: 'RESET' })
+          </button>
+          <button class="action-btn" onclick="demoDispatch('LOGIN')">
+            dispatch({ type: 'LOGIN' })
+          </button>
+          <button class="action-btn" onclick="demoDispatch('TOGGLE_THEME')">
+            dispatch({ type: 'TOGGLE_THEME' })
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- Log de acciones despachadas -->
+    <div style="margin-top:1.25rem">
+      <h4 style="font-size:.78rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text2);margin-bottom:.6rem;">
+        Action Log
+      </h4>
+      <div class="dispatch-log" id="dispatch-log">
+        <span style="color:#6c7086">// Haz clic en una acción para verla aquí...</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============================================
+     SECCIÓN 4 — COMPONENTES PRINCIPALES
+     Las cuatro piezas fundamentales de Redux:
+     Store, Actions, Reducers y Selectors.
+     ============================================= -->
+<section id="componentes">
+  <hr class="section-divider" />
+  <div class="section-tag">04 · Componentes</div>
+  <h2 class="section-title">Componentes Principales</h2>
+  <p class="section-subtitle">
+    Redux se construye sobre cuatro pilares fundamentales que trabajan
+    en conjunto para gestionar el estado de forma predecible.
+  </p>
+
+  <div class="comp-list">
+    <!-- STORE: el repositorio central del estado -->
+    <div class="comp-card">
+      <div class="comp-num">01</div>
+      <h3>Store</h3>
+      <!-- El Store es el objeto que contiene el árbol de estado,
+           expone getState(), dispatch() y subscribe() -->
+      <p>
+        El <strong>contenedor central</strong> que almacena el árbol de estado
+        completo de la aplicación. Solo existe un Store por aplicación.
+        Expone <code>getState()</code>, <code>dispatch()</code> y <code>subscribe()</code>.
+      </p>
+      <span class="comp-tag">createStore() / configureStore()</span>
+    </div>
+
+    <!-- ACTIONS: objetos que describen eventos -->
+    <div class="comp-card">
+      <div class="comp-num">02</div>
+      <h3>Actions</h3>
+      <!-- Las Actions son objetos planos con { type, payload }.
+           Son la única fuente de información para actualizar el Store. -->
+      <p>
+        Objetos planos de JavaScript que describen <strong>qué ocurrió</strong>
+        en la aplicación. El campo <code>type</code> es obligatorio.
+        Los <em>Action Creators</em> son funciones que los generan.
+      </p>
+      <span class="comp-tag">{ type: 'INCREMENT', payload: 1 }</span>
+    </div>
+
+    <!-- REDUCERS: funciones puras que calculan el nuevo estado -->
+    <div class="comp-card">
+      <div class="comp-num">03</div>
+      <h3>Reducers</h3>
+      <!-- Los Reducers son funciones puras: (state, action) => newState.
+           Nunca mutan el estado, siempre retornan un nuevo objeto. -->
+      <p>
+        Funciones puras con la firma <code>(state, action) =&gt; newState</code>.
+        Especifican cómo el estado de la aplicación <strong>cambia en respuesta
+        a las acciones</strong>. Nunca mutan el estado directamente.
+      </p>
+      <span class="comp-tag">createReducer() / createSlice()</span>
+    </div>
+
+    <!-- SELECTORS: funciones que extraen datos del Store -->
+    <div class="comp-card">
+      <div class="comp-num">04</div>
+      <h3>Selectors</h3>
+      <!-- Los Selectors son funciones que leen y/o derivan datos
+           del estado. createSelector() los memoiza para eficiencia. -->
+      <p>
+        Funciones que <strong>extraen y derivan datos</strong> del estado del
+        Store. Con <code>createSelector</code> (Reselect) se memorizan para
+        evitar recálculos innecesarios y mejorar el rendimiento.
+      </p>
+      <span class="comp-tag">createSelector()</span>
+    </div>
+  </div>
+
+  <!-- Bloque de código: Reducer completo con Redux Toolkit -->
+  <div class="code-block" style="margin-top:2.5rem">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-filename">features/counterSlice.js  — Redux Toolkit</span>
+    </div>
+    <!-- REDUX TOOLKIT (RTK): La forma moderna y recomendada de escribir Redux.
+         createSlice() genera automáticamente el reducer y los action creators. -->
+    <pre><span class="hl-kw">import</span> { <span class="hl-fn">createSlice</span> } <span class="hl-kw">from</span> <span class="hl-str">'@reduxjs/toolkit'</span>;
+
+<span class="hl-cm">// createSlice: genera el reducer, las actions y los action creators
+// de forma automática, reduciendo el boilerplate de Redux clásico.</span>
+<span class="hl-kw">const</span> counterSlice = <span class="hl-fn">createSlice</span>({
+  <span class="hl-obj">name</span>: <span class="hl-str">'counter'</span>,
+
+  <span class="hl-cm">// INITIAL STATE: valor por defecto del estado de este slice</span>
+  <span class="hl-obj">initialState</span>: { <span class="hl-obj">value</span>: <span class="hl-num">0</span>, <span class="hl-obj">status</span>: <span class="hl-str">'idle'</span> },
+
+  <span class="hl-cm">// REDUCERS: cada método aquí es un mini-reducer + su action creator.
+  // Immer (incluido en RTK) permite "mutar" el draft de estado de forma segura.</span>
+  <span class="hl-obj">reducers</span>: {
+    <span class="hl-fn">increment</span>: (state) <span class="hl-op">=></span> { state.value <span class="hl-op">+=</span> <span class="hl-num">1</span>; },
+    <span class="hl-fn">decrement</span>: (state) <span class="hl-op">=></span> { state.value <span class="hl-op">-=</span> <span class="hl-num">1</span>; },
+    <span class="hl-fn">incrementByAmount</span>: (state, action) <span class="hl-op">=></span> {
+      <span class="hl-cm">// action.payload contiene el valor enviado en el dispatch</span>
+      state.value <span class="hl-op">+=</span> action.payload;
+    },
+  },
+});
+
+<span class="hl-cm">// Exportar los action creators generados automáticamente</span>
+<span class="hl-kw">export const</span> { <span class="hl-fn">increment</span>, <span class="hl-fn">decrement</span>, <span class="hl-fn">incrementByAmount</span> } = counterSlice.actions;
+
+<span class="hl-cm">// SELECTOR: función que extrae el valor del contador del Store</span>
+<span class="hl-kw">export const</span> <span class="hl-fn">selectCount</span> = (state) <span class="hl-op">=></span> state.counter.value;
+
+<span class="hl-kw">export default</span> counterSlice.reducer;</pre>
+  </div>
+</section>
+
+<!-- =============================================
+     FOOTER
+     ============================================= -->
+<footer>
+  · <a style="text-decoration: none;" href="https://desingdata.github.io/desingdata/" target="_blank"><strong>Desing
+        Data</strong> </a> 2026 |
+    · By <a style="text-decoration: none;" href="https://miguelmauricioriveralopez18686.github.io/mrlPortafolio/"
+      target="_blank"><strong>Miguel Mauricio Rivera López</strong></a>
+ 
+</footer>
+
+<!-- =============================================
+     SCRIPTS
+     El siguiente código JS simula el comportamiento
+     de un Store de Redux en JavaScript puro.
+     ============================================= -->
+<script>
+  // ==========================================
+  // CAMBIO DE TEMA
+  // Simula una "acción" SET_THEME en Redux:
+  // al hacer dispatch, el estado del tema cambia
+  // y la UI (el DOM) se actualiza.
+  // ==========================================
+  let isDark = false;
+
+  function toggleTheme() {
+    isDark = !isDark;
+    // Despacha el "cambio de estado" al DOM (nuestro "Store" visual)
+    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+    const icon = isDark ? '☀️' : '🌙';
+    document.getElementById('theme-icon').textContent   = icon;
+    document.getElementById('theme-icon-m').textContent = icon;
+  }
+
+  // ==========================================
+  // MENÚ HAMBURGUESA
+  // Actúa como un "toggle" de estado booleano,
+  // igual que un reducer: open = !open
+  // ==========================================
+  function toggleMenu() {
+    const btn  = document.getElementById('hamburger');
+    const menu = document.getElementById('mobile-menu');
+    btn.classList.toggle('open');
+    menu.classList.toggle('open');
+  }
+
+  function closeMenu() {
+    document.getElementById('hamburger').classList.remove('open');
+    document.getElementById('mobile-menu').classList.remove('open');
+  }
+
+  // ==========================================
+  // DIAGRAMA FLUX — INFO DINÁMICA
+  // Cada nodo del diagrama tiene una "acción"
+  // que actualiza el panel de información.
+  // ==========================================
+  const fluxData = {
+    action: {
+      title: 'Action',
+      text: '<strong>¿Qué ocurrió?</strong> Una Action es un objeto plano <code>{ type, payload }</code> que describe un evento. Es el único mecanismo para notificar al sistema que algo sucedió. Ej: <code>{ type: "ADD_TODO", payload: "Estudiar Redux" }</code>.'
+    },
+    dispatcher: {
+      title: 'Dispatcher',
+      text: '<strong>Enrutador central.</strong> En Flux, el Dispatcher recibe todas las Actions y las reenvía a los Stores registrados. En Redux, esta función la cumple el método <code>store.dispatch(action)</code> directamente.'
+    },
+    store: {
+      title: 'Store',
+      text: '<strong>Fuente de verdad.</strong> Contiene el estado completo de la aplicación y expone <code>getState()</code>, <code>dispatch()</code> y <code>subscribe()</code>. En Redux solo existe <em>un</em> Store global.'
+    },
+    view: {
+      title: 'View (React)',
+      text: '<strong>Capa de presentación.</strong> Los componentes React se suscriben al Store con <code>useSelector()</code> y re-renderizan automáticamente al detectar cambios de estado. Para enviar acciones usan <code>useDispatch()</code>.'
+    }
+  };
+
+  let activeNode = null;
+
+  function showFluxInfo(id) {
+    // Limpiar nodo activo anterior
+    if (activeNode) document.getElementById('fn-' + activeNode).classList.remove('active');
+
+    // Activar nuevo nodo
+    activeNode = id;
+    document.getElementById('fn-' + id).classList.add('active');
+
+    // Actualizar panel de info (simula suscripción al Store)
+    const data = fluxData[id];
+    document.getElementById('flux-info').innerHTML = `
+      <strong>${data.title}: </strong>${data.text}
+    `;
+  }
+
+  // ==========================================
+  // REDUX STORE SIMULADO (JS puro)
+  // Implementación manual de la lógica de Redux:
+  // - initialState: estado inicial
+  // - reducer: función pura (state, action) => newState
+  // - dispatch: envía acciones al reducer
+  // ==========================================
+  
+  // INITIAL STATE: estado base de nuestra app demo
+  let demoState = {
+    counter: 0,
+    user: { name: 'Invitado', logged: false },
+    theme: 'light'
+  };
+
+  // REDUCER: función pura que transforma el estado
+  // según el tipo de acción recibida.
+  // Nunca muta el estado; siempre retorna un nuevo objeto.
+  function demoReducer(state, action) {
+    switch (action.type) {
+      case 'INCREMENT':
+        return { ...state, counter: state.counter + 1 };
+      case 'DECREMENT':
+        return { ...state, counter: state.counter - 1 };
+      case 'RESET':
+        return { ...state, counter: 0 };
+      case 'LOGIN':
+        return { ...state, user: { name: 'Usuario Redux', logged: true } };
+      case 'LOGOUT':
+        return { ...state, user: { name: 'Invitado', logged: false } };
+      case 'TOGGLE_THEME':
+        return { ...state, theme: state.theme === 'light' ? 'dark' : 'light' };
+      default:
+        return state; // Siempre retornar el estado actual si no hay match
+    }
+  }
+
+  // DISPATCH: envía una acción al reducer y actualiza la UI
+  function demoDispatch(type) {
+    // 1. Crear la acción
+    const action = { type };
+
+    // 2. Llamar al reducer para obtener el nuevo estado
+    demoState = demoReducer(demoState, action);
+
+    // 3. Actualizar la vista (subscribe → re-render)
+    updateStateDisplay();
+    logAction(action);
+  }
+
+  // SUSCRIPTOR: actualiza el DOM cuando el estado cambia.
+  // Equivale al re-render que React hace al detectar cambios.
+  function updateStateDisplay() {
+    document.getElementById('sd-count').textContent  = demoState.counter;
+    document.getElementById('sd-name').textContent   = `"${demoState.user.name}"`;
+    document.getElementById('sd-logged').textContent = demoState.user.logged;
+    document.getElementById('sd-theme').textContent  = `"${demoState.theme}"`;
+  }
+
+  // ACTION LOG: registro cronológico de acciones despachadas.
+  // Equivale al panel de Redux DevTools.
+  let logLines = [];
+
+  function logAction(action) {
+    const time = new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const entry = `[${time}] &gt;&gt; dispatch({ type: '${action.type}' })`;
+    logLines.push(entry);
+    if (logLines.length > 20) logLines.shift(); // máximo 20 entradas
+
+    const log = document.getElementById('dispatch-log');
+    log.innerHTML = logLines.map((l, i) =>
+      `<div class="log-entry ${i === logLines.length - 1 ? 'new' : ''}">${l}</div>`
+    ).join('');
+    log.scrollTop = log.scrollHeight;
+  }
+</script>
+</body>
+</html>
