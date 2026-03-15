@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>React Router - React JS Developer</title>
+  <link rel="icon" href="https://desingdata.github.io/desingdata/img/DesingData_favicon-96x96.png" sizes="96x96"
+    type="image/png">
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+
+  </style>
+</head>
+
+<body>
+
+  <!-- NAVBAR -->
+  <nav>
+    <div class="nav-logo" onclick="goTo('home')">
+      <svg viewBox="0 0 28 28" fill="none">
+        <circle cx="14" cy="14" r="13" stroke="var(--accent)" stroke-width="1.5" />
+        <path d="M8 10h12M8 14h8M8 18h10" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" />
+      </svg>
+      React Router
+    </div>
+
+    <div class="nav-links" id="navLinks">
+      <a onclick="goTo('intro')" id="nav-intro">Introducción</a>
+      <a onclick="goTo('components')" id="nav-components">Componentes</a>
+      <a onclick="goTo('current')" id="nav-current">Ruta Actual</a>
+      <a onclick="goTo('redirect')" id="nav-redirect">Redirecciones</a>
+    </div>
+
+    <div class="nav-right">
+      <div class="theme-btn" onclick="toggleTheme()" title="Cambiar tema"></div>
+      <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menú">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- MOBILE MENU -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a onclick="goTo('intro');toggleMenu()" id="mnav-intro">📖 Introducción</a>
+    <a onclick="goTo('components');toggleMenu()" id="mnav-components">🧩 Componentes</a>
+    <a onclick="goTo('current');toggleMenu()" id="mnav-current">📍 Ruta Actual</a>
+    <a onclick="goTo('redirect');toggleMenu()" id="mnav-redirect">↪️ Redirecciones</a>
+  </div>
+
+  <main>
+
+    <!-- ===================== HOME ===================== -->
+    <div class="page active" id="page-home">
+      <div class="hero">
+        <h1>Routing y Navegación<br>con React Router</h1>
+        <p>Aprende a construir SPAs con navegación fluida usando React Router v6. Cada sección incluye teoría, código
+          comentado y demos interactivos.</p>
+        <div class="badge-row">
+          <span class="badge blue">React Router v6</span>
+          <span class="badge purple">SPA</span>
+          <span class="badge yellow">React 18</span>
+          <span class="badge green">Responsive</span>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="mini-card" onclick="goTo('intro')" style="cursor:pointer">
+          <h4>📖 Introducción</h4>
+          <p>¿Qué es React Router? Instalación y configuración inicial del proyecto.</p>
+        </div>
+        <div class="mini-card" onclick="goTo('components')" style="cursor:pointer">
+          <h4>🧩 Componentes</h4>
+          <p>BrowserRouter, Routes, Route, Link, NavLink y sus propiedades.</p>
+        </div>
+        <div class="mini-card" onclick="goTo('current')" style="cursor:pointer">
+          <h4>📍 Ruta Actual</h4>
+          <p>Hooks useLocation, useParams y useMatch para leer la URL activa.</p>
+        </div>
+        <div class="mini-card" onclick="goTo('redirect')" style="cursor:pointer">
+          <h4>↪️ Redirecciones</h4>
+          <p>Navigate, useNavigate y rutas protegidas con redirección.</p>
+        </div>
+      </div>
+
+      <div class="section-card" style="margin-top:1.5rem">
+        <div class="section-title">
+          <div class="section-num" style="background:var(--green)">→</div>
+          Flujo de navegación en una SPA
+        </div>
+        <div class="flow">
+          <div class="flow-step">URL cambia</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">Router detecta</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">Coincide ruta</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">Renderiza componente</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step" style="color:var(--green)">Vista actualizada</div>
+        </div>
+        <div class="info-box">
+          <strong>Sin recarga de página</strong> — React Router intercepta los cambios de URL y re-renderiza solo el
+          componente necesario, sin hacer peticiones al servidor.
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== INTRO ===================== -->
+    <div class="page" id="page-intro">
+      <div class="page-header">
+        <div class="page-icon" style="background:#1e3a5f">📖</div>
+        <div>
+          <h2>Introducción a React Router</h2>
+          <p>La librería estándar para navegación en aplicaciones React</p>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-title">
+          <div class="section-num">1</div>¿Qué es React Router?
+        </div>
+        <p class="section-desc">
+          React Router es una librería de enrutamiento del lado del cliente para React. Permite crear aplicaciones de
+          una sola página (SPA) donde la navegación ocurre sin recargar el navegador, mapeando las rutas de la URL a
+          componentes específicos.
+        </p>
+        <div class="info-box">
+          <strong>Single Page Application (SPA):</strong> Solo se carga el HTML inicial una vez. Los cambios de "página"
+          son renderizados por JavaScript en el cliente, haciendo la navegación instantánea.
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-title">
+          <div class="section-num">2</div>Instalación
+        </div>
+        <div class="code-block">
+          <pre><span class="cmt"># Instalar React Router v6 en tu proyecto</span>
+<span class="fn">npm</span> install react-router-dom
+
+<span class="cmt"># O con yarn</span>
+<span class="fn">yarn</span> add react-router-dom</pre>
+        </div>
+        <div class="info-box warn-box" style="margin-top:1rem">
+          <strong>Nota:</strong> <code>react-router-dom</code> incluye todo lo necesario para aplicaciones web. Para
+          React Native se usa <code>react-router-native</code>.
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-title">
+          <div class="section-num">3</div>Configuración inicial — main.jsx
+        </div>
+        <p class="section-desc">El punto de entrada de la aplicación envuelve todo con el router principal.</p>
+        <div class="code-block">
+          <pre><span class="cmt">// main.jsx — Punto de entrada de la aplicación</span>
+<span class="kw">import</span> { StrictMode } <span class="kw">from</span> <span class="str">'react'</span>
+<span class="kw">import</span> { createRoot } <span class="kw">from</span> <span class="str">'react-dom/client'</span>
+
+<span class="cmt">// BrowserRouter: habilita el enrutamiento en toda la app</span>
+<span class="kw">import</span> { BrowserRouter } <span class="kw">from</span> <span class="str">'react-router-dom'</span>
+<span class="kw">import</span> App <span class="kw">from</span> <span class="str">'./App'</span>
+
+createRoot(document.getElementById(<span class="str">'root'</span>)).render(
+  &lt;<span class="tag">StrictMode</span>&gt;
+    <span class="cmt">{/* BrowserRouter envuelve toda la app para proveer contexto de routing */}</span>
+    &lt;<span class="tag">BrowserRouter</span>&gt;
+      &lt;<span class="tag">App</span> /&gt;
+    &lt;/<span class="tag">BrowserRouter</span>&gt;
+  &lt;/<span class="tag">StrictMode</span>&gt;
+)</pre>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-title">
+          <div class="section-num">4</div>Estructura de archivos recomendada
+        </div>
+        <div class="code-block">
+          <pre><span class="str">src/</span>
+├── <span class="fn">main.jsx</span>          <span class="cmt">← BrowserRouter aquí</span>
+├── <span class="fn">App.jsx</span>           <span class="cmt">← Routes y Route aquí</span>
+├── <span class="str">pages/</span>
+│   ├── <span class="fn">Home.jsx</span>      <span class="cmt">← Página principal</span>
+│   ├── <span class="fn">About.jsx</span>     <span class="cmt">← Página "Acerca de"</span>
+│   ├── <span class="fn">User.jsx</span>      <span class="cmt">← Página con parámetro :id</span>
+│   └── <span class="fn">NotFound.jsx</span>  <span class="cmt">← Página 404</span>
+└── <span class="str">components/</span>
+    └── <span class="fn">Navbar.jsx</span>    <span class="cmt">← Navbar con links</span></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== COMPONENTS ===================== -->
+    <div class="page" id="page-components">
+      <div class="page-header">
+        <div class="page-icon" style="background:#2a1a4a">🧩</div>
+        <div>
+          <h2>Componentes Principales</h2>
+          <p>Los building blocks esenciales de React Router v6</p>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-title">
+          <div class="section-num">1</div>BrowserRouter
+        </div>
+        <p class="section-desc">Provee el contexto de enrutamiento a toda la aplicación usando la History API del
+          navegador. Debe envolver el árbol de componentes donde se use el router.</p>
+        <div class="code-block">
+          <pre><span class="kw">import</span> { BrowserRouter } <span class="kw">from</span> <span class="str">'react-router-dom'</span>
+
+<span class="cmt">// BrowserRouter: usa URLs limpias tipo /about, /users/5</span>
+<span class="cmt">// (requiere configuración del servidor en producción)</span>
+<span class="kw">function</span> <span class="fn">main</span>() {
+  root.render(
+    &lt;<span class="tag">BrowserRouter</span>&gt;  <span class="cmt">{/* ← Contexto global */}</span>
+      &lt;<span class="tag">App</span> /&gt;
+    &lt;/<span class="tag">BrowserRouter</span>&gt;
+  )
+}</pre>
+        </div>
+        <div class="demo-box">
+          <div class="demo-title">Variantes de Router</div>
+          <div class="grid-2" style="margin:0">
+            <div class="mini-card" style="background:var(--bg)">
+              <h4>BrowserRouter</h4>
+              <p>URLs: <code>/home</code>, <code>/about</code><br>Usa History API</p>
+            </div>
+            <div class="mini-card" style="background:var(--bg)">
+              <h4>HashRouter</h4>
+              <p>URLs: <code>/#/home</code><br>Para hosting estático</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-title">
+          <div class="section-num">2</div>Routes y Route
+        </div>
+        <p class="section-desc"><code>&lt;Routes&gt;</code> es el contenedor de todas las rutas.
+          <code>&lt;Route&gt;</code> define qué componente renderizar para cada URL. En v6, solo se renderiza la primera
+          ruta que coincide.</p>
+        <div class="code-block">
+          <pre><span class="kw">import</span> { Routes, Route } <span class="kw">from</span> <span class="str">'react-router-dom'</span>
+<span class="kw">import</span> { Home, About, User, NotFound } <span class="kw">from</span> <span class="str">'./pages'</span>
+
+<span class="kw">function</span> <span class="fn">App</span>() {
+  <span class="kw">return</span> (
+    &lt;&gt;
+      &lt;<span class="tag">Navbar</span> /&gt;  <span class="cmt">{/* Siempre visible */}</span>
+
+      <span class="cmt">{/* Routes: busca la primera ruta que coincida con la URL */}</span>
+      &lt;<span class="tag">Routes</span>&gt;
+
+        <span class="cmt">{/* Route: path → componente a renderizar */}</span>
+        &lt;<span class="tag">Route</span> <span class="attr">path</span>=<span class="str">"/"</span>         <span class="attr">element</span>={&lt;<span class="tag">Home</span> /&gt;} /&gt;
+        &lt;<span class="tag">Route</span> <span class="attr">path</span>=<span class="str">"/about"</span>    <span class="attr">element</span>={&lt;<span class="tag">About</span> /&gt;} /&gt;
+
+        <span class="cmt">{/* :id es un parámetro dinámico */}</span>
+        &lt;<span class="tag">Route</span> <span class="attr">path</span>=<span class="str">"/user/:id"</span> <span class="attr">element</span>={&lt;<span class="tag">User</span> /&gt;} /&gt;
+
+        <span class="cmt">{/* * captura cualquier ruta no definida → 404 */}</span>
+        &lt;<span class="tag">Route</span> <span class="attr">path</span>=<span class="str">"*"</span>          <span class="attr">element</span>={&lt;<span class="tag">NotFound</span> /&gt;} /&gt;
+
+      &lt;/<span class="tag">Routes</span>&gt;
+    &lt;/&gt;
+  )
+}</pre>
+        </div>
+        <div class="demo-box">
+          <div class="demo-title">Tabla de rutas</div>
+          <table class="route-table">
+            <tr>
+              <th>Path</th>
+              <th>Componente</th>
+              <th>Tipo</th>
+            </tr>
+            <tr>
+              <td><code>/</code></td>
+              <td>Home</td>
+              <td><span class="pill get">estática</span></td>
+            </tr>
+            <tr>
+              <td><code>/about</code></td>
+              <td>About</td>
+              <td><span class="pill get">estática</span></td>
+            </tr>
+            <tr>
+              <td><code>/user/:id</code></td>
+              <td>User</td>
+              <td><span class="pill post">dinámica</span></td>
+            </tr>
+            <tr>
+              <td><code>*</code></td>
+              <td>NotFound</td>
+              <td><span class="pill" style="background:#2a1a1a;color:var(--red)">fallback</span></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-title">
+          <div class="section-num">3</div>Link y NavLink
+        </div>
+        <p class="section-desc"><code>&lt;Link&gt;</code> reemplaza a <code>&lt;a href&gt;</code> para navegar sin
+          recargar. <code>&lt;NavLink&gt;</code> añade estilos automáticamente a la ruta activa.</p>
+        <div class="code-block">
+          <pre><span class="kw">import</span> { Link, NavLink } <span class="kw">from</span> <span class="str">'react-router-dom'</span>
+
+<span class="kw">function</span> <span class="fn">Navbar</span>() {
+  <span class="kw">return</span> (
+    &lt;<span class="tag">nav</span>&gt;
+      <span class="cmt">{/* Link: navegación básica sin recarga */}</span>
+      &lt;<span class="tag">Link</span> <span class="attr">to</span>=<span class="str">"/"</span>&gt;Inicio&lt;/<span class="tag">Link</span>&gt;
+
+      <span class="cmt">{/* NavLink: aplica clase/estilo cuando la ruta está activa */}</span>
+      &lt;<span class="tag">NavLink</span>
+        <span class="attr">to</span>=<span class="str">"/about"</span>
+        <span class="cmt">{/* Función: recibe {isActive} y retorna clase CSS */}</span>
+        <span class="attr">className</span>={({ isActive }) =&gt;
+          isActive ? <span class="str">"link activo"</span> : <span class="str">"link"</span>
+        }
+      &gt;
+        Acerca de
+      &lt;/<span class="tag">NavLink</span>&gt;
+
+      <span class="cmt">{/* NavLink con estilos inline condicionales */}</span>
+      &lt;<span class="tag">NavLink</span>
+        <span class="attr">to</span>=<span class="str">"/contacto"</span>
+        <span class="attr">style</span>={({ isActive }) =&gt; ({
+          color: isActive ? <span class="str">'#61dafb'</span> : <span class="str">'#8892b0'</span>,
+          fontWeight: isActive ? <span class="str">'bold'</span> : <span class="str">'normal'</span>
+        })}
+      &gt;
+        Contacto
+      &lt;/<span class="tag">NavLink</span>&gt;
+    &lt;/<span class="tag">nav</span>&gt;
+  )
+}</pre>
+        </div>
+        <div class="info-box success-box">
+          <strong>Link vs &lt;a&gt;:</strong> Usar <code>&lt;a href&gt;</code> recarga toda la página.
+          <code>&lt;Link&gt;</code> intercepta el click, actualiza la URL y solo re-renderiza el componente correcto.
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== CURRENT ROUTE ===================== -->
+    <div class="page" id="page-current">
+      <div class="page-header">
+        <div class="page-icon" style="background:#1a3a2a">📍</div>
+        <div>
+          <h2>Acceso a Ruta Actual</h2>
+          <p>Hooks para leer y reaccionar a la URL activa</p>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-title">
+          <div class="section-num">1</div>useLocation — Leer la URL completa
+        </div>
+        <p class="section-desc"><code>useLocation()</code> retorna el objeto de ubicación actual con pathname, search
+          (query params) y hash.</p>
+        <div class="url-bar"><span class="lock">🔒</span> localhost:3000/productos<span
+            style="color:var(--accent2)">?categoria=ropa</span><span style="color:var(--pink)">#ofertas</span></div>
+        <div class="code-block">
+          <pre><span class="kw">import</span> { useLocation } <span class="kw">from</span> <span class="str">'react-router-dom'</span>
+
+<span class="kw">function</span> <span class="fn">Breadcrumb</span>() {
+  <span class="cmt">// useLocation: retorna la ubicación actual del navegador</span>
+  <span class="kw">const</span> location = <span class="fn">useLocation</span>()
+
+  <span class="cmt">// location.pathname → "/productos"</span>
+  <span class="cmt">// location.search   → "?categoria=ropa"</span>
+  <span class="cmt">// location.hash     → "#ofertas"</span>
+  <span class="cmt">// location.state    → datos pasados por navigate()</span>
+
+  <span class="kw">return</span> (
+    &lt;<span class="tag">div</span>&gt;
+      &lt;<span class="tag">p</span>&gt;Ruta actual: {location.pathname}&lt;/<span class="tag">p</span>&gt;
+      &lt;<span class="tag">p</span>&gt;Filtro: {location.search}&lt;/<span class="tag">p</span>&gt;
+    &lt;/<span class="tag">div</span>&gt;
+  )
+}</pre>
+        </div>
+        <div class="demo-box">
+          <div class="demo-title">Propiedades de location</div>
+          <table class="route-table">
+            <tr>
+              <th>Propiedad</th>
+              <th>Ejemplo</th>
+              <th>Uso</th>
+            </tr>
+            <tr>
+              <td><code>pathname</code></td>
+              <td><code>/productos</code></td>
+              <td>Ruta actual</td>
+            </tr>
+            <tr>
+              <td><code>search</code></td>
+              <td><code>?cat=ropa</code></td>
+              <td>Query params</td>
+            </tr>
+            <tr>
+              <td><code>hash</code></td>
+              <td><code>#ofertas</code></td>
+              <td>Ancla de página</td>
+            </tr>
+            <tr>
+              <td><code>state</code></td>
+              <td><code>{ from: '/' }</code></td>
+              <td>Estado de navegación</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-title">
+          <div class="section-num">2</div>useParams — Parámetros dinámicos
+        </div>
+        <p class="section-desc"><code>useParams()</code> extrae los parámetros definidos en el path de la ruta (los
+          segmentos con <code>:</code>).</p>
+        <div class="url-bar"><span class="lock">🔒</span> localhost:3000/user/<span
+            style="color:var(--accent2)">42</span>/post/<span style="color:var(--pink)">javascript</span></div>
+        <div class="code-block">
+          <pre><span class="kw">import</span> { useParams } <span class="kw">from</span> <span class="str">'react-router-dom'</span>
+
+<span class="cmt">// La ruta está definida como: /user/:userId/post/:slug</span>
+<span class="kw">function</span> <span class="fn">UserPost</span>() {
+  <span class="cmt">// useParams: obtiene los segmentos dinámicos de la URL</span>
+  <span class="kw">const</span> { userId, slug } = <span class="fn">useParams</span>()
+
+  <span class="cmt">// Para /user/42/post/javascript:</span>
+  <span class="cmt">// userId → "42"  (siempre string)</span>
+  <span class="cmt">// slug   → "javascript"</span>
+
+  <span class="kw">return</span> (
+    &lt;<span class="tag">div</span>&gt;
+      &lt;<span class="tag">h1</span>&gt;Post: {slug}&lt;/<span class="tag">h1</span>&gt;
+      &lt;<span class="tag">p</span>&gt;Autor ID: {userId}&lt;/<span class="tag">p</span>&gt;
+    &lt;/<span class="tag">div</span>&gt;
+  )
+}</pre>
+        </div>
+        <div class="info-box warn-box">
+          <strong>Importante:</strong> Los parámetros de <code>useParams()</code> son siempre strings. Si necesitas un
+          número, convierte con <code>Number(userId)</code> o <code>parseInt(userId)</code>.
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-title">
+          <div class="section-num">3</div>useMatch — Comparar ruta activa
+        </div>
+        <p class="section-desc"><code>useMatch()</code> verifica si la URL actual coincide con un patrón dado. Útil para
+          lógica condicional basada en la ruta.</p>
+        <div class="code-block">
+          <pre><span class="kw">import</span> { useMatch } <span class="kw">from</span> <span class="str">'react-router-dom'</span>
+
+<span class="kw">function</span> <span class="fn">Sidebar</span>() {
+  <span class="cmt">// useMatch: retorna objeto si hay coincidencia, o null si no</span>
+  <span class="kw">const</span> enHome   = <span class="fn">useMatch</span>(<span class="str">"/"</span>)
+  <span class="kw">const</span> enPerfil = <span class="fn">useMatch</span>(<span class="str">"/user/:id"</span>)
+
+  <span class="kw">return</span> (
+    &lt;<span class="tag">aside</span>&gt;
+      <span class="cmt">{/* Mostrar banner solo en la home */}</span>
+      {enHome &amp;&amp; &lt;<span class="tag">Banner</span> /&gt;}
+
+      <span class="cmt">{/* Mostrar el ID del perfil si estamos en /user/:id */}</span>
+      {enPerfil &amp;&amp; (
+        &lt;<span class="tag">p</span>&gt;Perfil: {enPerfil.params.id}&lt;/<span class="tag">p</span>&gt;
+      )}
+    &lt;/<span class="tag">aside</span>&gt;
+  )
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== REDIRECTS ===================== -->
+    <div class="page" id="page-redirect">
+      <div class="page-header">
+        <div class="page-icon" style="background:#3a1a1a">↪️</div>
+        <div>
+          <h2>Redirecciones</h2>
+          <p>Navegar y redirigir programáticamente entre rutas</p>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-title">
+          <div class="section-num">1</div>Componente &lt;Navigate&gt;
+        </div>
+        <p class="section-desc"><code>&lt;Navigate&gt;</code> redirige declarativamente cuando se renderiza. Ideal para
+          redirecciones en el JSX.</p>
+        <div class="code-block">
+          <pre><span class="kw">import</span> { Navigate } <span class="kw">from</span> <span class="str">'react-router-dom'</span>
+
+<span class="cmt">// Navigate: redirige al renderizarse (declarativo)</span>
+<span class="kw">function</span> <span class="fn">PaginaAntigua</span>() {
+  <span class="cmt">// replace: reemplaza la entrada del historial</span>
+  <span class="cmt">// (el usuario no puede volver con "atrás")</span>
+  <span class="kw">return</span> &lt;<span class="tag">Navigate</span> <span class="attr">to</span>=<span class="str">"/nueva-ruta"</span> <span class="attr">replace</span> /&gt;
+}
+
+<span class="cmt">// Redirigir según condición (guard de autenticación)</span>
+<span class="kw">function</span> <span class="fn">Dashboard</span>() {
+  <span class="kw">const</span> usuario = <span class="fn">useAuth</span>()  <span class="cmt">// hook personalizado</span>
+
+  <span class="cmt">// Si no está autenticado, redirigir al login</span>
+  <span class="kw">if</span> (!usuario) {
+    <span class="kw">return</span> &lt;<span class="tag">Navigate</span> <span class="attr">to</span>=<span class="str">"/login"</span> <span class="attr">state</span>={{ from: <span class="str">"/dashboard"</span> }} /&gt;
+  }
+
+  <span class="kw">return</span> &lt;<span class="tag">div</span>&gt;Bienvenido {usuario.nombre}&lt;/<span class="tag">div</span>&gt;
+}</pre>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-title">
+          <div class="section-num">2</div>Hook useNavigate
+        </div>
+        <p class="section-desc"><code>useNavigate()</code> retorna una función para navegar programáticamente. Ideal
+          para redirecciones tras eventos (submit de formulario, click de botón).</p>
+        <div class="code-block">
+          <pre><span class="kw">import</span> { useNavigate } <span class="kw">from</span> <span class="str">'react-router-dom'</span>
+
+<span class="kw">function</span> <span class="fn">FormularioLogin</span>() {
+  <span class="cmt">// useNavigate: retorna función navigate(to, options)</span>
+  <span class="kw">const</span> navigate = <span class="fn">useNavigate</span>()
+
+  <span class="kw">const</span> <span class="fn">handleSubmit</span> = <span class="kw">async</span> (e) =&gt; {
+    e.preventDefault()
+
+    <span class="kw">const</span> ok = <span class="kw">await</span> <span class="fn">loginAPI</span>(email, pass)
+
+    <span class="kw">if</span> (ok) {
+      <span class="cmt">// Navegar al dashboard tras login exitoso</span>
+      <span class="fn">navigate</span>(<span class="str">"/dashboard"</span>)
+    }
+  }
+
+  <span class="kw">return</span> (
+    &lt;<span class="tag">button</span> <span class="attr">onClick</span>={() =&gt; <span class="fn">navigate</span>(-<span class="num">1</span>)}&gt;
+      ← Volver atrás
+    &lt;/<span class="tag">button</span>&gt;
+    <span class="cmt">{/* navigate(-1) → equivale al botón "Atrás" del browser */}</span>
+    <span class="cmt">{/* navigate(1)  → equivale al botón "Adelante" */}</span>
+  )
+}</pre>
+        </div>
+
+        <div class="demo-box">
+          <div class="demo-title">Demo interactivo — navigate()</div>
+          <div class="redirect-demo">
+            <div class="redir-row">
+              <button class="redir-btn" onclick="simulateNav('/dashboard')">navigate('/dashboard')</button>
+              <div class="redir-result" id="res1">esperando...</div>
+            </div>
+            <div class="redir-row">
+              <button class="redir-btn" onclick="simulateNav('/login', true)">navigate('/login', replace)</button>
+              <div class="redir-result" id="res2">esperando...</div>
+            </div>
+            <div class="redir-row">
+              <button class="redir-btn" onclick="simulateNav(-1)">navigate(-1) — atrás</button>
+              <div class="redir-result" id="res3">esperando...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-title">
+          <div class="section-num">3</div>Ruta Protegida (PrivateRoute)
+        </div>
+        <p class="section-desc">Patrón para proteger rutas que requieren autenticación, combinando Navigate con lógica
+          condicional.</p>
+        <div class="code-block">
+          <pre><span class="kw">import</span> { Navigate, Outlet } <span class="kw">from</span> <span class="str">'react-router-dom'</span>
+
+<span class="cmt">// PrivateRoute: componente que protege rutas privadas</span>
+<span class="cmt">// Outlet renderiza los componentes hijos de la ruta</span>
+<span class="kw">function</span> <span class="fn">PrivateRoute</span>({ autenticado }) {
+  <span class="kw">return</span> autenticado
+    ? &lt;<span class="tag">Outlet</span> /&gt;              <span class="cmt">// ✅ Renderiza la ruta hija</span>
+    : &lt;<span class="tag">Navigate</span> <span class="attr">to</span>=<span class="str">"/login"</span> /&gt; <span class="cmt">// 🔒 Redirige al login</span>
+}
+
+<span class="cmt">// Uso en App.jsx con rutas anidadas</span>
+<span class="kw">function</span> <span class="fn">App</span>() {
+  <span class="kw">const</span> isAuth = <span class="fn">useAuth</span>()
+  <span class="kw">return</span> (
+    &lt;<span class="tag">Routes</span>&gt;
+      &lt;<span class="tag">Route</span> <span class="attr">path</span>=<span class="str">"/login"</span> <span class="attr">element</span>={&lt;<span class="tag">Login</span> /&gt;} /&gt;
+
+      <span class="cmt">{/* Rutas protegidas como hijos de PrivateRoute */}</span>
+      &lt;<span class="tag">Route</span> <span class="attr">element</span>={&lt;<span class="tag">PrivateRoute</span> <span class="attr">autenticado</span>={isAuth} /&gt;}&gt;
+        &lt;<span class="tag">Route</span> <span class="attr">path</span>=<span class="str">"/dashboard"</span> <span class="attr">element</span>={&lt;<span class="tag">Dashboard</span> /&gt;} /&gt;
+        &lt;<span class="tag">Route</span> <span class="attr">path</span>=<span class="str">"/perfil"</span>    <span class="attr">element</span>={&lt;<span class="tag">Perfil</span> /&gt;} /&gt;
+      &lt;/<span class="tag">Route</span>&gt;
+    &lt;/<span class="tag">Routes</span>&gt;
+  )
+}</pre>
+        </div>
+        <div class="info-box success-box">
+          <strong>Flujo de autenticación:</strong> Usuario intenta acceder a <code>/dashboard</code> →
+          <code>PrivateRoute</code> verifica <code>isAuth</code> → si es false, redirige a <code>/login</code> → tras
+          login exitoso, <code>navigate('/dashboard')</code>.
+        </div>
+      </div>
+    </div>
+
+  </main>
+  <footer>
+    · <a style="text-decoration: none;" href="https://desingdata.github.io/desingdata/" target="_blank"><strong>Desing
+        Data</strong> </a> 2026 |
+    · By <a style="text-decoration: none;" href="https://miguelmauricioriveralopez18686.github.io/mrlPortafolio/"
+      target="_blank"><strong>Miguel Mauricio Rivera López</strong></a>
+  </footer>
+  <script src="js/script.js">
+
+  </script>
+</body>
+
+</html>
